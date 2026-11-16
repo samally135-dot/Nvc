@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>日常人際互動與溝通人格測驗</title>
+  <title>日常心境與生活風格小測驗</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -17,9 +17,9 @@
   <header class="bg-slate-800/90 backdrop-blur border-b border-slate-700 sticky top-0 z-50 px-4 py-3 shadow-md">
     <div class="max-w-md mx-auto flex justify-between items-center">
       <h1 class="font-bold text-base text-emerald-400 flex items-center gap-1.5">
-        <span>💬</span> 日常人際溝通人格測驗
+        <span>🧩</span> 日常心境與生活風格小測驗
       </h1>
-      <span class="text-xs px-2.5 py-1 bg-slate-700 rounded-full text-slate-300" x-text="step === 'quiz' ? '第 ' + (currentIndex + 1) + ' / 20 題' : '專屬報告'"></span>
+      <span class="text-xs px-2.5 py-1 bg-slate-700 rounded-full text-slate-300" x-text="step === 'quiz' ? '第 ' + (currentIndex + 1) + ' / 20 題' : '專屬人格'"></span>
     </div>
   </header>
 
@@ -32,7 +32,7 @@
         <!-- 進度條 -->
         <div class="space-y-1.5">
           <div class="flex justify-between text-[11px] text-slate-400">
-            <span>請憑第一直覺作答，測出你的溝通人格</span>
+            <span>憑直覺選出最符合你日常狀態的選項</span>
             <span x-text="Math.round(((currentIndex + 1) / 20) * 100) + '%'"></span>
           </div>
           <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
@@ -46,7 +46,7 @@
           <h2 class="text-base font-bold text-slate-100 leading-relaxed" x-text="currentQuestion.text"></h2>
         </div>
 
-        <!-- 選項列表 -->
+        <!-- 選項列表 (無預設立場的自然選項) -->
         <div class="space-y-2.5 pt-2">
           <template x-for="(opt, idx) in options" :key="idx">
             <button @click="answer(opt.score)" 
@@ -65,7 +65,7 @@
       
       <div class="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl space-y-5 text-center">
         
-        <!-- 專屬 MBTI 風格人格名片 -->
+        <!-- 專屬 MBTI 風格溝通人格名片 -->
         <div class="bg-gradient-to-br from-emerald-950/90 via-slate-900 to-indigo-950/80 p-5 rounded-2xl border border-emerald-500/40 shadow-lg space-y-2.5 relative overflow-hidden">
           <div class="text-4xl mb-1" x-text="persona.icon"></div>
           <div class="inline-block px-3 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-mono font-bold tracking-wider" x-text="persona.code"></div>
@@ -76,7 +76,7 @@
 
         <!-- 雷達圖 Canvas 容器 -->
         <div class="space-y-2">
-          <span class="text-xs font-semibold text-slate-400 block">📊 四大互動維度能力分佈圖</span>
+          <span class="text-xs font-semibold text-slate-400 block">📊 四大潛在心智維度分佈圖</span>
           <div class="bg-slate-900/70 p-4 rounded-xl border border-slate-700 relative flex justify-center items-center">
             <canvas id="radarChart" width="300" height="300"></canvas>
           </div>
@@ -104,7 +104,7 @@
 
         <!-- 互動盲點與成長建議 -->
         <div class="bg-slate-900/80 p-4 rounded-xl border border-indigo-500/30 text-left space-y-1.5">
-          <span class="text-xs font-bold text-indigo-400 block">💡 給你的關係進化小提醒</span>
+          <span class="text-xs font-bold text-indigo-400 block">💡 專屬心態盲點與日常小貼士</span>
           <p class="text-xs text-slate-300 leading-relaxed" x-text="getAdviceComment()"></p>
         </div>
 
@@ -124,121 +124,50 @@
         step: 'quiz',
         currentIndex: 0,
         scores: {
-          fact: 0,       // 客觀敘事力 (F)
-          emotion: 0,    // 情緒辨識度 (E)
-          motive: 0,     // 動機洞察力 (M)
-          autonomy: 0    // 彈性協商力 (A)
+          fact: 0,       // 客觀敘事力
+          emotion: 0,    // 情緒辨識度
+          motive: 0,     // 動機洞察力
+          autonomy: 0    // 彈性協商力
         },
         chartInstance: null,
         
         options: [
-          { text: '幾乎不符合我', score: 1 },
-          { text: '偶爾才這樣', score: 2 },
+          { text: '極少發生在我身上', score: 1 },
+          { text: '偶爾會這樣', score: 2 },
           { text: '經常是這樣', score: 3 },
-          { text: '完全符合我', score: 4 }
+          { text: '完全就是我的日常', score: 4 }
         ],
 
+        // 20道完全打散、極度生活化且沒有標準答案導向的心理情境題
         questions: [
-          { dim: 'fact', tag: '日常摩擦', text: '1. 約好見面但朋友晚到了，我開口通常會說「你比約定時間晚了20分鐘」，而不是「你每次都這麼愛遲到」。' },
-          { dim: 'emotion', tag: '情緒反應', text: '2. 當心裡悶悶不樂或煩躁時，我能說出自己其實是「感到孤單、擔心或委屈」，而不只是籠統地說「我很煩」。' },
-          { dim: 'motive', tag: '衝突時刻', text: '3. 看到身邊的人突然發脾氣，我會下意識去想「他最近是不是壓力很大或需要被關心」，而不是立刻覺得他很無理。' },
-          { dim: 'autonomy', tag: '開口請託', text: '4. 希望另一半或家人分擔家務時，我會明確說出「你今晚方便幫忙倒垃圾嗎」，而不是嘆氣等對方自己發現。' },
+          { dim: 'fact', tag: '生活場景', text: '1. 回到家發現客廳很亂時，我心裡浮現的第一個念頭通常是「具體有哪些東西散落各處」，而不是「為什麼大家總是不收拾」。' },
+          { dim: 'emotion', tag: '內心劇場', text: '2. 當計畫被打亂、行程被迫延遲時，我能很快察覺到自己心裡究竟是感到「慌亂、疲憊還是無奈」。' },
+          { dim: 'motive', tag: '日常觀察', text: '3. 逛街或搭捷運時，我常會忍不住去想擦身而過的陌生人此時此刻心裡可能正在煩惱些什麼。' },
+          { dim: 'autonomy', tag: '生活習慣', text: '4. 與朋友聚會決定聚餐地點時，我習慣直接說出自己想吃哪一種類型的餐廳，而不是讓大家一直猜。' },
           
-          { dim: 'fact', tag: '意見不合', text: '5. 和人起爭執時，我習慣先把「當時具體發生了什麼事」對齊清楚，而不是急著幫對方的行為貼上自私、冷漠的標籤。' },
-          { dim: 'emotion', tag: '面對指責', text: '6. 當別人說話讓我覺得受傷時，我明白這是因為「我很在意這段關係」，而不認為「全都是對方故意要害我難過」。' },
-          { dim: 'motive', tag: '自我對話', text: '7. 當我對某件事感到強烈失落時，我會停下來問自己：「我內心真正在乎、渴望得到的是什麼？」' },
-          { dim: 'autonomy', tag: '面對拒絕', text: '8. 當我拜託朋友幫忙卻被婉拒時，我能平靜地接受對方的難處，不會因此擺臭臉或冷戰好幾天。' },
+          { dim: 'fact', tag: '記憶方式', text: '5. 回憶上週發生的爭執或誤會時，我腦海中浮現的畫面多半像記錄片一樣，是當時各自說了什麼、做了什麼。' },
+          { dim: 'emotion', tag: '情緒消化', text: '6. 面對突如其來的低潮或沮喪，我習慣先給自己一段安靜發呆的時間，而不是強迫自己立刻振作起來。' },
+          { dim: 'motive', tag: '人際直覺', text: '7. 聽到身邊的人講出不太好聽的狠話時，我通常不會馬上生氣，而是會想他是不是最近遇到了什麼過不去的關卡。' },
+          { dim: 'autonomy', tag: '個人界線', text: '8. 當朋友臨時約局但我當下真的很累想休息時，我能輕鬆自然地拒絕，而不會內疚一整晚。' },
 
-          { dim: 'fact', tag: '傾聽習慣', text: '9. 聽別人抱怨某個人很糟糕時，我會好奇問他：「對方具體做了什麼事讓你這麼覺得？」' },
-          { dim: 'emotion', tag: '表達不滿', text: '10. 溝通時，我習慣用「看到這樣的情況，我心裡有點焦慮」來開頭，而不是說「你這樣做真的很讓人受不了」。' },
-          { dim: 'motive', tag: '價值選擇', text: '11. 發生誤會時，我更在乎「怎麼做才能讓彼此都覺得安心」，勝過於「一定要爭出誰對誰錯」。' },
-          { dim: 'autonomy', tag: '拒絕藝術', text: '12. 當別人提出的要求超出我的能力範圍時，我能坦誠地說「我現在沒辦法做到」，而不會勉強答應後再來生悶氣。' },
+          { dim: 'fact', tag: '資訊接收', text: '9. 閱讀網路上的爭議新聞或貼文時，我會習慣先找出事件的脈絡與時間點，再決定自己的看法。' },
+          { dim: 'emotion', tag: '情緒表達', text: '10. 當我覺得心裡很受傷或委屈時，我身邊比較親近的人通常能從我的眼神或語調中感受到。' },
+          { dim: 'motive', tag: '價值觀感', text: '11. 我經常覺得，世界上大多數的衝突與對立，其實都源自於彼此心裡對「安全感」或「被重視」的渴望。' },
+          { dim: 'autonomy', tag: '期待管理', text: '12. 對於身邊的人，我習慣抱持「每個人都有自己的生活節奏」的心態，不太會奢望別人照著我的期待過日子。' },
 
-          { dim: 'fact', tag: '說話分寸', text: '13. 給別人建議或回饋時，我會盡量避免使用「你總是這樣」、「你從來都不……」這類把話說死的字眼。' },
-          { dim: 'emotion', tag: '情緒接納', text: '14. 發現自己正在嫉妒或感到自卑時，我會允許自己有這些情緒，不會急著責怪自己「太小心眼」。' },
-          { dim: 'motive', tag: '人際界線', text: '15. 我認為自己的快樂與安全感應該由自己來照顧，不會把「讓我開心」當成伴侶或朋友的義務。' },
-          { dim: 'autonomy', tag: '改變期待', text: '16. 希望對方改掉某個習慣時，我會提出具體的小步驟（例如：睡前把手機放客廳），而不是要求「你以後應該要更體貼」。' },
+          { dim: 'fact', tag: '自我審視', text: '13. 檢討自己今天的表現時，我傾向一碼歸一碼地看哪些事情做得好、哪些需要調整，而不是直接否定自己的全部。' },
+          { dim: 'emotion', tag: '共感體驗', text: '14. 看電影或影集時，我很容易被主角內心深處那種「孤單卻又倔強」的時刻給觸動到鼻酸。' },
+          { dim: 'motive', tag: '心態模式', text: '15. 面對別人的反覆無常或情緒起伏，我內心比較多的是好奇與理解，而不是覺得對方很麻煩。' },
+          { dim: 'autonomy', tag: '日常選擇', text: '16. 面對生活中的大大小小決定，我通常很清楚這是我自己的選擇，就算結果不如預期也能自己承擔。' },
 
-          { dim: 'fact', tag: '接收批評', text: '17. 別人批評我「工作態度很隨便」時，我會先冷靜問他：「是哪一份報告的哪個部分讓你覺得不夠仔細？」' },
-          { dim: 'emotion', tag: '陪伴他人', text: '18. 朋友向我訴苦時，我不會急著講道理或給建議，而是先陪他一起感受那份難過或無助。' },
-          { dim: 'motive', tag: '理解差異', text: '19. 即使完全不認同對方的做法，我依然相信他這麼做背後一定有他想保護的重要東西（例如尊嚴或安全感）。' },
-          { dim: 'autonomy', tag: '說話語氣', text: '20. 在關係中提出要求時，我傳遞的是「如果你願意的話我會很開心」，而不是「你愛我就必須這樣做」。' }
+          { dim: 'fact', tag: '描述事情', text: '17. 向別人轉述一件發生的事情時，我會盡量講得像發生在眼前一樣具體，少用「很誇張」、「超離譜」這種形容詞。' },
+          { dim: 'emotion', tag: '心理韌性', text: '18. 當心裡累積太多情緒快要爆炸時，我會透過寫字、聽音樂或散步等方式，把那些情緒好好宣洩出來。' },
+          { dim: 'motive', tag: '同理視角', text: '19. 即使某個公眾人物或同事的作風我很不喜歡，我依然能理解他所處的位置有他的難處與侷限。' },
+          { dim: 'autonomy', tag: '人際互動', text: '20. 在團體裡要分配任務或提出合作時，我習慣用「大家看看這樣分工行不行」的討論語氣，而不是直接指派。' }
         ],
 
         get currentQuestion() {
           return this.questions[this.currentIndex];
-        },
-
-        // 根據雷達圖得分動態匹配 MBTI 風格溝通人格角色
-        get persona() {
-          const { fact, emotion, motive, autonomy } = this.scores;
-          const total = fact + emotion + motive + autonomy;
-          const minScore = Math.min(fact, emotion, motive, autonomy);
-          const maxScore = Math.max(fact, emotion, motive, autonomy);
-
-          // 1. 全能高分均衡型
-          if (minScore >= 16) {
-            return {
-              icon: '🕊️',
-              code: 'FEMA · 頂級共振者',
-              title: '溫柔堅定的「心靈擺渡人」',
-              quote: '我看見你的情緒，也尊重你做自己的自由。',
-              desc: '你的四項溝通維度宛如完美的鑽石！在關係中，你既能像記者一樣客觀還原事實、不亂貼標籤，又能像詩人般細膩接住彼此的脆弱。你懂得為自己的需求負責，從不用情緒勒索綁架他人，跟你相處會讓人感到無比安心與被理解。'
-            };
-          }
-
-          // 2. 整體偏低內耗型
-          if (total <= 42) {
-            return {
-              icon: '🦔',
-              code: 'SOFT · 敏感防衛者',
-              title: '外剛內柔的「刺蝟守護者」',
-              quote: '我不是故意要築起高牆，只是害怕受傷。',
-              desc: '在人際互動中，你其實很渴望被理解，但過去的經驗讓你習慣用「講道理、貼標籤」或「生悶氣、冷戰」來保護自己。當感覺不對勁時，你容易把委屈吞下去，或不小心用帶刺的話推開在意的人。試著對自己多一點溫柔，你不需要武裝也能被好好愛著。'
-            };
-          }
-
-          // 3. 客觀敘事力最高
-          if (maxScore === fact) {
-            return {
-              icon: '🦉',
-              code: 'F-TYPE · 理性剖析者',
-              title: '清晰冷靜的「事實觀察家」',
-              quote: '先別急著下定論，讓我們看看真正發生了什麼。',
-              desc: '你擁有極強的邏輯與客觀視角，是衝突現場最可靠的定海神針。當別人都在情緒化地翻舊帳、指責對方「你總是這樣」時，你能精準把焦點拉回具體事實，不輕易被偏見帶偏，這讓你在職場與人際協商中具備極高的公信力。'
-            };
-          }
-
-          // 4. 情緒辨識度最高
-          if (maxScore === emotion) {
-            return {
-              icon: '🦌',
-              code: 'E-TYPE · 深度共感者',
-              title: '細膩敏銳的「情緒雷達」',
-              quote: '在講道理之前，我更在乎你心裡好不好受。',
-              desc: '你擁有極為豐富的情感詞彙與共感天賦，總能第一時間察覺空氣中微妙的情緒流動。你不會用「生氣」掩蓋脆弱，也懂得陪伴朋友走過低谷而不急著說教。身邊的人只要跟你聊過天，往往會覺得心裡的石頭放下了一大半。'
-            };
-          }
-
-          // 5. 動機洞察力最高
-          if (maxScore === motive) {
-            return {
-              icon: '🐋',
-              code: 'M-TYPE · 靈魂潛行者',
-              title: '看透本質的「需求解碼師」',
-              quote: '所有帶刺的語言背後，都藏著一顆渴望被愛的心。',
-              desc: '你有一雙能穿透表面行為的眼睛。當別人被對方的難聽話語激怒時，你卻能看見他背後未被滿足的恐懼與渴望；同時你也很懂得覺察自己內心真正的需要，不輕易陷入「爭輸贏」的無意義內耗，擁有極高的人際智慧。'
-            };
-          }
-
-          // 6. 彈性協商力最高
-          return {
-            icon: '🦊',
-            code: 'A-TYPE · 邊界建築師',
-            title: '自在坦率的「邊界魔法師」',
-            quote: '我真誠地邀請你，也完全尊重你說不的權利。',
-            desc: '你在關係中展現出極佳的鬆弛感與界線意識！你從不叫別人「猜你的心思」，總能把期待化為具體可行的請求；更難得的是，你既敢於坦率拒絕不合理的要求，也能平靜接受別人的拒絕，是現代人際關係中最健康的「不內耗代表」。'
-          };
         },
 
         answer(score) {
@@ -268,7 +197,7 @@
             data: {
               labels: ['客觀敘事力', '情緒辨識度', '動機洞察力', '彈性協商力'],
               datasets: [{
-                label: '溝通風格得分',
+                label: '心智風格得分',
                 data: [fact, emotion, motive, autonomy],
                 backgroundColor: 'rgba(16, 185, 129, 0.25)',
                 borderColor: 'rgba(16, 185, 129, 1)',
@@ -305,22 +234,87 @@
           });
         },
 
+        get persona() {
+          const { fact, emotion, motive, autonomy } = this.scores;
+          const total = fact + emotion + motive + autonomy;
+          const minScore = Math.min(fact, emotion, motive, autonomy);
+          const maxScore = Math.max(fact, emotion, motive, autonomy);
+
+          if (minScore >= 16) {
+            return {
+              icon: '🕊️',
+              code: 'FEMA · 全能平衡者',
+              title: '內心清明、溫柔而有力量的「心靈擺渡人」',
+              quote: '看得清現實的形狀，也接得住生命的重量。',
+              desc: '你的心智狀態展現出極其罕見的流動與平衡！你既擁有冷靜客觀的敘事眼光，不被情緒帶著走；又具備細膩的同理心與宏觀的動機洞察。你在生活中有著極佳的邊界感，既不強求他人也不消耗自己，是眾人眼中無比安心的存在。'
+            };
+          }
+
+          if (total <= 42) {
+            return {
+              icon: '🦔',
+              code: 'SOFT · 內心防衛者',
+              title: '外表隨性、內心敏銳的「刺蝟守護者」',
+              quote: '我只是習慣把柔軟藏在心底，不想輕易受傷。',
+              desc: '在日常生活中，你其實擁有非常豐富的內心世界與敏銳的感受力，但由於過去承受過不少生活壓力，讓你習慣在人際互動中保持防備。有時你寧可自己把委屈吞下，也不願多說。給自己多一點空間吧，你比想像中更值得被溫柔以待。'
+            };
+          }
+
+          if (maxScore === fact) {
+            return {
+              icon: '🦉',
+              code: 'F-TYPE · 理性觀察家',
+              title: '思路清晰、追求真相的「事實解碼員」',
+              quote: '讓證據說話，生活自然會變得簡單許多。',
+              desc: '你擁有一雙極其銳利的理性眼睛！當周遭的人深陷情緒漩渦、互相抱怨時，你總能像局外人一樣冷靜看清事情的本質與時間脈絡。這種不隨波逐流的特質，讓你無論在學業、工作或應對複雜狀況時，都顯得特別可靠。'
+            };
+          }
+
+          if (maxScore === emotion) {
+            return {
+              icon: '🦌',
+              code: 'E-TYPE · 深度共感者',
+              title: '敏銳溫柔、情感豐沛的「心靈氣象台」',
+              quote: '空氣中每一絲細微的波動，我都輕輕接住了。',
+              desc: '你的情感雷達極度靈敏！你對於自己內心的喜怒哀樂有著很深的覺察，也能毫不費力地共情身邊人的脆弱與無奈。你從不吝嗇給予陪伴，只要身邊的人心情不好，往往第一個就會想到找你傾訴。'
+            };
+          }
+
+          if (maxScore === motive) {
+            return {
+              icon: '🐋',
+              code: 'M-TYPE · 靈魂潛行者',
+              title: '看透本質、充滿哲思的「底層守望者」',
+              quote: '在行為的表面之下，藏著每個人靈魂的渴求。',
+              desc: '你有著一顆老靈魂，習慣去探索人類行為背後的深層動機。面對別人的無理取鬧或古怪脾氣，你很少第一時間動怒，而是會去想對方究竟在恐懼什麼。這種深刻的同理與理解力，使你散發著一種沉穩而智慧的氣場。'
+            };
+          }
+
+          return {
+            icon: '🦊',
+            code: 'A-TYPE · 邊界魔法師',
+            title: '鬆弛有度、活得通透的「自由航海家」',
+            quote: '我為自己的人生負責，也把自由還給每個人。',
+            desc: '你在人際關係中擁有極高的「鬆弛感」！你既懂得在生活中為自己爭取空間、坦然拒絕不喜歡的事，也不會過度干涉或期待別人配合你。這種乾淨俐落、互相尊重的相處風格，讓你的周遭總是圍繞著舒服而沒有壓力的氛圍。'
+          };
+        },
+
         getAdviceComment() {
           const { fact, emotion, motive, autonomy } = this.scores;
           const minScore = Math.min(fact, emotion, motive, autonomy);
 
           if (minScore >= 16) {
-            return "你的溝通雷達圖幾乎沒有短板！建議你繼續保持這份覺察，在面對高壓情境或親密關係的深水區時，你已經具備足夠的心理韌性去創造雙贏對話。";
+            return "你的各項心智維度都發展得很平均！在面對生活的風浪時，你已經具備足夠的內在支撐力，繼續保持這份覺察與彈性即可。";
           }
 
           if (minScore === fact) {
-            return "【成長關鍵：把「評價」還原成「事實」】在情緒上頭時，你較容易無意識地使用「你總是……」、「你很自私」等主觀標籤。下次開口前試著深呼吸，練習只說出「眼見為憑的具體事件」，對方的防衛心會瞬間降低一半。";
+            return "【日常心態小提醒：回到眼見為憑的事實】當生活不如意或起摩擦時，你比較容易陷入主觀的焦慮或放大負面情緒。試著在腦中把「我覺得大家都在針對我」還原成「今天發生了哪三件事」，內心的緊繃感會減輕很多。";
           } else if (minScore === emotion) {
-            return "【成長關鍵：允許「脆弱」被看見】你在表達內心真實感受上較為保留，習慣用「生氣、不耐煩」或「講道理」來包裝內在的不安與失落。試著多練習說出「我其實有點擔心／難過」，真誠的脆弱往往是拉近關係的鑰匙。";
+            return "【日常心態小提醒：練習和自己的情緒做朋友】你習慣把真實的情緒（如疲憊、失落）壓在心裡默默消化。試著給自己允許脆弱的空間，哪怕只是跟信任的人說一句「我今天真的有點累」，也能釋放掉不少心理負擔。";
           } else if (minScore === motive) {
-            return "【成長關鍵：看見行為背後的「渴望」】衝突當下你容易被對方的表面態度激怒，陷入「誰對誰錯」的拉鋸戰。試著在心裡多問一句「我們彼此真正在乎的需求是什麼」，往往能跳脫僵局找到新的出口。";
+            return "【日常心態小提醒：多留一點好奇心給他人】當周遭的人事物不如預期時，你容易直接感到煩躁。試著在心裡多給自己一個問號：「他這麼做，背後會不會其實有他的難處呢？」這會讓你看待世界的方式變得更柔軟。";
           } else {
-            return "【成長關鍵：用「具體邀請」取代「暗示期待」】在提出需求時，有時你會因為怕被拒絕而選擇「等對方自己猜」，或在被拒絕時感到受傷。練習把期待化為「具體且允許對方說不的邀請」，會讓彼此的相處更輕鬆自在。";
+            return "【日常心態小提醒：把期待化為清楚的邀請】在生活或人際中，你常常因為怕麻煩別人而選擇默默自己扛，或習慣心裡暗自期待別人主動發現。試著學習大方開口表達你的需求，你會發現世界比你想的好溝通。";
           }
         },
 
@@ -333,4 +327,4 @@
     }
   </script>
 </body>
-            </html>
+</html>
