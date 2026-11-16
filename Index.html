@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>非暴力溝通 (NVC) 能力測驗與雷達圖分析</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- 引入 Chart.js 用來畫雷達圖 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    input, select, textarea { font-size: 16px !important; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen pb-20" x-data="nvcApp()">
+
+  <!-- 頂部 Header -->
+  <header class="bg-slate-800/90 backdrop-blur border-b border-slate-700 sticky top-0 z-50 px-4 py-3 shadow-md">
+    <div class="max-w-md mx-auto flex justify-between items-center">
+      <h1 class="font-bold text-base text-emerald-400 flex items-center gap-1.5">
+        <span>🌸</span> NVC 非暴力溝通能力測驗
+      </h1>
+      <span class="text-xs px-2.5 py-1 bg-slate-700 rounded-full text-slate-300" x-text="step === 'quiz' ? '第 ' + (currentIndex + 1) + ' / 20 題' : '測驗完成'"></span>
+    </div>
+  </header>
+
+  <main class="max-w-md mx-auto p-4 space-y-6">
+
+    <!-- ================= 階段一：答題畫面 ================= -->
+    <section x-show="step === 'quiz'" x-transition class="space-y-4">
+      <div class="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl space-y-5">
+        
+        <!-- 進度條 -->
+        <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+          <div class="bg-emerald-500 h-full transition-all duration-300" :style="'width: ' + ((currentIndex + 1) / 20 * 100) + '%'"></div>
+        </div>
+
+        <!-- 題目內容 -->
+        <div class="space-y-3 pt-2">
+          <span class="text-xs px-2.5 py-1 rounded-md bg-emerald-950 text-emerald-400 border border-emerald-800 font-semibold" x-text="currentQuestion.category"></span>
+          <h2 class="text-base font-bold text-slate-100 leading-relaxed" x-text="currentQuestion.text"></h2>
+        </div>
+
+        <!-- 選項列表 (4分制量表) -->
+        <div class="space-y-2.5 pt-2">
+          <template x-for="(opt, idx) in options" :key="idx">
+            <button @click="answer(opt.score)" 
+              class="w-full text-left p-3.5 rounded-xl bg-slate-700/50 hover:bg-slate-700 border border-slate-600 hover:border-emerald-500 text-sm text-slate-200 transition-all flex items-center justify-between group active:scale-[0.98]">
+              <span x-text="opt.text"></span>
+              <span class="text-xs text-slate-400 group-hover:text-emerald-400 font-bold">➜</span>
+            </button>
+          </template>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ================= 階段二：結果與雷達圖畫面 ================= -->
+    <section x-show="step === 'result'" x-transition class="space-y-6">
+      
+      <!-- 總評卡片 -->
+      <div class="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl space-y-4 text-center">
+        <h2 class="text-lg font-bold text-emerald-400">🎉 您的非暴力溝通能力分析報告</h2>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          基於您在 20 道題目中的直覺反應，我們為您分析出四大核心維度的發展狀況：
+        </p>
+
+        <!-- 雷達圖 Canvas 容器 -->
+        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700 relative flex justify-center items-center">
+          <canvas id="radarChart" width="300" height="300"></canvas>
+        </div>
+
+        <!-- 專業心理/社工評語 -->
+        <div class="bg-slate-900/80 p-4 rounded-xl border border-indigo-500/30 text-left space-y-2">
+          <span class="text-xs font-bold text-indigo-400 block">💡 核心專業觀點回饋</span>
+          <p class="text-xs text-slate-300 leading-relaxed" x-text="getAnalysisComment()"></p>
+        </div>
+
+        <!-- 重新測驗按鈕 -->
+        <button @click="restart()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-lg">
+          🔄 重新測驗一次
+        </button>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script>
+    function nvcApp() {
+      return {
+        step: 'quiz', // 'quiz' 或 'result'
+        currentIndex: 0,
+        scores: {
+          observation: 0, // 觀察 (Q1-Q5)
+          feeling: 0,     // 感受 (Q6-Q10)
+          need: 0,        // 需要 (Q11-Q15)
+          request: 0      // 請求 (Q16-Q20)
+        },
+        chartInstance: null,
+        
+        options: [
+          { text: '1. 幾乎從不這樣做', score: 1 },
+          { text: '2. 偶爾會這樣', score: 2 },
+          { text: '3. 經常這樣做', score: 3 },
+          { text: '4. 幾乎總是如此', score: 4 }
+        ],
+
+        // 20道精心設計的 NVC 題目
+        questions: [
+          // 【維度一：客觀觀察 (Observation)】
+          { category: '客觀觀察', text: '1. 在溝通衝突時，我能先說出客觀發生的事實，而不夾雜「你總是」、「你每次都」等主觀評價。' },
+          { category: '客觀觀察', text: '2. 當別人指責我時，我能分清對方是在表達「情緒與事實」還是對我進行「道德評判」。' },
+          { category: '客觀觀察', text: '3. 我習慣在開口說話前，先檢查自己是否把「個人的解讀」當成了「客觀真相」。' },
+          { category: '客觀觀察', text: '4. 面對伴侶或家人抱怨時，我能耐心聽出對方描述的是哪一個具體事件，而不是急著辯解。' },
+          { category: '客觀觀察', text: '5. 我能夠做到不帶標籤地描述一個人的行為（例如說「你昨天遲到20分鐘」而非「你很不守時」）。' },
+
+          // 【維度二：真實感受 (Feeling)】
+          { category: '真實感受', text: '6. 我能清楚辨識並說出自己內心深處的真正情緒（如：擔憂、失落、孤單），而不只是用「生氣」或「隨便」帶過。' },
+          { category: '真實感受', text: '7. 當我感到情緒波動時，我能允許自己感受它，而不急著壓抑或否定它。' },
+          { category: '真實感受', text: '8. 表達感受時，我習慣使用「我覺得……（情緒詞）」來分享，而非指責對方「害我……」。' },
+          { category: '真實感受', text: '9. 我能區分「真正的感受」與「隱含指責的想法」（例如：「我覺得被背叛」其實是想法，「我覺得難過與受傷」是感受）。' },
+          { category: '真實感受', text: '10. 在朋友低落時，我能同理並陪伴對方去覺察他們背後的情緒。' },
+
+          // 【維度三：核心需要 (Need)】
+          { category: '核心需要', text: '11. 我深信每個人的行為背後，都是為了滿足某些核心需要（如安全感、被尊重、自主性）。' },
+          { category: '核心需要', text: '12. 當我生氣時，我會停下來問自己：「我心裡渴望得到什麼滿足，才會這麼有情緒？」' },
+          { category: '核心需要', text: '13. 我能看見對方指責背後，其實藏著未被滿足的渴望或脆弱，而不是直接回擊。' },
+          { category: '核心需要', text: '14. 我習慣將注意力從「誰對誰錯」轉移到「彼此的核心需要是什麼」上。' },
+          { category: '核心需要', text: '15. 我不會把自己的快樂或需求完全寄託在別人身上，懂得為自己的需要負起責任。' },
+
+          // 【維度四：具體請求 (Request)】
+          { category: '具體請求', text: '16. 當我有需求時，我會提出「具體、正面、可行」的請求，而不是要求對方「猜我的心思」。' },
+          { category: '具體請求', text: '17. 我的請求是基於「邀請」而非「命令」，對方拒絕時我不會用冷暴力或罪惡感懲罰對方。' },
+          { category: '具體請求', text: '18. 與人溝通時，我能明確說出：「你是否願意……」，給予對方自主選擇的空間。' },
+          { category: '具體請求', text: '19. 當別人提出請求時，若我無法做到，我能真誠且堅定地拒絕，而不會感到過度罪惡。' },
+          { category: '具體請求', text: '20. 我能將批評轉化為請求（例如把「你房間很亂」轉化為「你願意今天花10分鐘整理桌子嗎？」）。' }
+        ],
+
+        get currentQuestion() {
+          return this.questions[this.currentIndex];
+        },
+
+        answer(score) {
+          // 根據當前題目的所屬類別累加分數
+          const cat = this.currentQuestion.category;
+          if (cat === '客觀觀察') this.scores.observation += score;
+          else if (cat === '真實感受') this.scores.feeling += score;
+          else if (cat === '核心需要') this.scores.need += score;
+          else if (cat === '請求') this.scores.request += score;
+
+          if (this.currentIndex < this.questions.length - 1) {
+            this.currentIndex++;
+          } else {
+            // 答題完畢，進入結果並渲染雷達圖
+            this.step = 'result';
+            setTimeout(() => {
+              this.renderChart();
+            }, 100);
+          }
+        },
+
+        renderChart() {
+          const ctx = document.getElementById('radarChart').getContext('2d');
+          
+          // 轉換成每個維度的平均分 (每項5題，最高 20 分)
+          const obs = this.scores.observation;
+          const feel = this.scores.feeling;
+          const need = this.scores.need;
+          const req = this.scores.request;
+
+          if (this.chartInstance) {
+            this.chartInstance.destroy();
+          }
+
+          this.chartInstance = new Chart(ctx, {
+            type: 'radar',
+            data: {
+              labels: ['客觀觀察', '真實感受', '核心需要', '具體請求'],
+              datasets: [{
+                label: 'NVC 能力得分',
+                data: [obs, feel, need, req],
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                borderColor: 'rgba(16, 185, 129, 1)',
+                pointBackgroundColor: 'rgba(16, 185, 129, 1)',
+                borderWidth: 2,
+                pointRadius: 4
+              }]
+            },
+            options: {
+              responsive: true,
+              scales: {
+                r: {
+                  min: 5,
+                  max: 20,
+                  ticks: {
+                    stepSize: 5,
+                    color: '#94a3b8',
+                    backdropColor: 'transparent'
+                  },
+                  grid: { color: '#334155' },
+                  angleLines: { color: '#334155' },
+                  pointLabels: {
+                    color: '#f8fafc',
+                    font: { size: 12, weight: 'bold' }
+                  }
+                }
+              },
+              plugins: {
+                legend: { display: false }
+              }
+            }
+          });
+        },
+
+        getAnalysisComment() {
+          const o = this.scores.observation;
+          const f = this.scores.feeling;
+          const n = this.scores.need;
+          const r = this.scores.request;
+          
+          let lowest = Math.min(o, f, n, r);
+          let comment = "從您的雷達圖分佈來看，";
+          
+          if (lowest === o) {
+            comment += "您目前在「客觀觀察」上可以多加著墨。溝通時容易不小心帶入主觀評價或標籤，建議練習多說事實、少說評判。";
+          } else if (lowest === f) {
+            comment += "您在「真實感受」的覺察上仍有成長空間。有時習慣壓抑情緒或把想法當成感受，試著多跟自己的內心對話。";
+          } else if (lowest === n) {
+            comment += "您在「核心需要」的連結上可以再多花心思。面對衝突時，容易聚焦在表面對錯，而非彼此心底渴望的價值。";
+          } else {
+            comment += "您在「具體請求」的表達上較為保守。有時習慣讓別人「猜心思」或把請求說成了命令，試著以溫柔的邀請代替要求。";
+          }
+          return comment;
+        },
+
+        restart() {
+          this.step = 'quiz';
+          this.currentIndex = 0;
+          this.scores = { observation: 0, feeling: 0, need: 0, request: 0 };
+        }
+      }
+    }
+  </script>
+</body>
+  </html>
