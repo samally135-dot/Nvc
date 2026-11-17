@@ -3,328 +3,588 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>日常心境與生活風格小測驗</title>
+  <title>微型人際關係體質檢測與交流站</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
     input, select, textarea { font-size: 16px !important; }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen pb-20" x-data="commQuiz()">
+<body class="bg-slate-900 text-slate-100 min-h-screen pb-24" x-data="appData()">
 
-  <!-- 頂部 Header -->
+  <!-- 頂部導覽列 -->
   <header class="bg-slate-800/90 backdrop-blur border-b border-slate-700 sticky top-0 z-50 px-4 py-3 shadow-md">
     <div class="max-w-md mx-auto flex justify-between items-center">
-      <h1 class="font-bold text-base text-emerald-400 flex items-center gap-1.5">
-        <span>🧩</span> 日常心境與生活風格小測驗
+      <h1 class="font-bold text-xs md:text-sm text-emerald-400 flex items-center gap-1 truncate">
+        <span>🔍</span> 人際體質測驗與交流站
       </h1>
-      <span class="text-xs px-2.5 py-1 bg-slate-700 rounded-full text-slate-300" x-text="step === 'quiz' ? '第 ' + (currentIndex + 1) + ' / 20 題' : '專屬人格'"></span>
+      
+      <!-- 三頁式切換按鈕 -->
+      <div class="flex bg-slate-900/80 p-1 rounded-xl border border-slate-700 shrink-0 text-xs">
+        <button @click="currentTab = 'quiz'" 
+          :class="currentTab === 'quiz' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white'"
+          class="px-2.5 py-1.5 rounded-lg font-medium transition-all">
+          📝 測驗
+        </button>
+        <button @click="currentTab = 'form'" 
+          :class="currentTab === 'form' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white'"
+          class="px-2.5 py-1.5 rounded-lg font-medium transition-all">
+          ✍️ 手動記帳
+        </button>
+        <button @click="currentTab = 'board'" 
+          :class="currentTab === 'board' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white'"
+          class="px-2.5 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1">
+          <span>📌 交流站</span>
+          <span class="bg-slate-800 px-1.5 py-0.2 rounded-full text-[10px]" x-text="posts.length"></span>
+        </button>
+      </div>
     </div>
   </header>
 
   <main class="max-w-md mx-auto p-4 space-y-6">
 
-    <!-- ================= 階段一：直覺答題畫面 ================= -->
-    <section x-show="step === 'quiz'" x-transition class="space-y-4">
-      <div class="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl space-y-5">
-        
+    <!-- ================= 第一頁：20題隱晦情境測驗 ================= -->
+    <section x-show="currentTab === 'quiz'" x-transition class="space-y-4">
+      <div class="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl space-y-4" x-show="!quizCompleted">
+        <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+          <h2 class="text-sm font-bold text-emerald-400">🧠 內在人際風格與體質心測</h2>
+          <span class="text-xs text-slate-400" x-text="'第 ' + (currentQIndex + 1) + ' / 20 題'"></span>
+        </div>
+
         <!-- 進度條 -->
-        <div class="space-y-1.5">
-          <div class="flex justify-between text-[11px] text-slate-400">
-            <span>憑直覺選出最符合你日常狀態的選項</span>
-            <span x-text="Math.round(((currentIndex + 1) / 20) * 100) + '%'"></span>
+        <div class="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
+          <div class="bg-emerald-500 h-full transition-all duration-300" :style="'width: ' + ((currentQIndex + 1) / 20 * 100) + '%'"></div>
+        </div>
+
+        <!-- 題目與選項 -->
+        <div class="space-y-3 pt-2">
+          <p class="text-sm font-medium text-slate-200 leading-relaxed" x-text="questions[currentQIndex].q"></p>
+          <div class="space-y-2 pt-2">
+            <template x-for="(opt, oIndex) in questions[currentQIndex].options" :key="oIndex">
+              <button type="button" @click="answerQuestion(opt.type)"
+                class="w-full text-left bg-slate-900/70 hover:bg-emerald-950/40 border border-slate-700 hover:border-emerald-500/50 p-3 rounded-xl text-xs text-slate-300 transition-all flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center shrink-0 text-[10px] text-emerald-400 font-bold" x-text="['A','B','C','D'][oIndex]"></span>
+                <span x-text="opt.text"></span>
+              </button>
+            </template>
           </div>
-          <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
-            <div class="bg-emerald-500 h-full transition-all duration-300" :style="'width: ' + ((currentIndex + 1) / 20 * 100) + '%'"></div>
+        </div>
+      </div>
+
+      <!-- 測驗結果畫面 -->
+      <div class="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl space-y-4" x-show="quizCompleted" x-transition>
+        <div class="text-center space-y-2 border-b border-slate-700 pb-4">
+          <span class="text-3xl" x-text="resultPersona.emoji"></span>
+          <h2 class="text-base font-bold text-emerald-400" x-text="resultPersona.title"></h2>
+          <p class="text-xs text-slate-300 leading-relaxed px-2" x-text="resultPersona.desc"></p>
+        </div>
+
+        <div class="bg-slate-900/70 p-3.5 rounded-xl border border-slate-700 space-y-3 text-xs">
+          <div class="flex justify-between items-center text-slate-300">
+            <span>測驗對應特質代號：</span>
+            <span class="font-bold text-emerald-400" x-text="resultPersona.type"></span>
+          </div>
+          <div class="flex justify-between items-center text-slate-300">
+            <span>建議感情/人際幸福感預設：</span>
+            <span class="font-bold text-amber-400" x-text="resultPersona.suggestedHappiness + ' / 10分'"></span>
           </div>
         </div>
 
-        <!-- 題目內容 -->
-        <div class="space-y-3 pt-2 min-h-[110px] flex flex-col justify-center">
-          <span class="self-start text-xs px-2.5 py-0.5 rounded-md bg-slate-700/80 text-emerald-400 border border-slate-600 font-medium" x-text="currentQuestion.tag"></span>
-          <h2 class="text-base font-bold text-slate-100 leading-relaxed" x-text="currentQuestion.text"></h2>
+        <!-- 一鍵帶入並發布到交流站 -->
+        <div class="space-y-2 pt-2">
+          <label class="text-xs text-slate-300 font-medium">發布身份設定</label>
+          <div class="flex items-center gap-3">
+            <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+              <input type="checkbox" x-model="form.isAnonymous" class="rounded bg-slate-700 text-emerald-500">
+              <span class="text-xs">匿名發布</span>
+            </label>
+            <input x-show="!form.isAnonymous" type="text" x-model="form.nickname" placeholder="請輸入您的暱稱" class="flex-1 bg-slate-700/80 border border-slate-600 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-400">
+          </div>
         </div>
 
-        <!-- 選項列表 (無預設立場的自然選項) -->
-        <div class="space-y-2.5 pt-2">
-          <template x-for="(opt, idx) in options" :key="idx">
-            <button @click="answer(opt.score)" 
-              class="w-full text-left p-3.5 rounded-xl bg-slate-700/40 hover:bg-slate-700 border border-slate-600 hover:border-emerald-500 text-sm text-slate-200 transition-all flex items-center justify-between group active:scale-[0.98]">
-              <span x-text="opt.text"></span>
-              <span class="text-xs text-slate-500 group-hover:text-emerald-400 font-bold">➜</span>
-            </button>
-          </template>
-        </div>
+        <button type="button" @click="submitQuizResult()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs shadow-xl transition-all">
+          🚀 將此測驗結果與感想同步至雲端交流站
+        </button>
+        <button type="button" @click="resetQuiz()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-300 py-2 rounded-xl text-xs transition-all">
+          🔄 重新測驗
+        </button>
       </div>
     </section>
 
 
-    <!-- ================= 階段二：人格名片、雷達圖與剖析 ================= -->
-    <section x-show="step === 'result'" x-transition class="space-y-6">
-      
-      <div class="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl space-y-5 text-center">
-        
-        <!-- 專屬 MBTI 風格溝通人格名片 -->
-        <div class="bg-gradient-to-br from-emerald-950/90 via-slate-900 to-indigo-950/80 p-5 rounded-2xl border border-emerald-500/40 shadow-lg space-y-2.5 relative overflow-hidden">
-          <div class="text-4xl mb-1" x-text="persona.icon"></div>
-          <div class="inline-block px-3 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-mono font-bold tracking-wider" x-text="persona.code"></div>
-          <h2 class="text-xl font-extrabold text-white tracking-wide" x-text="persona.title"></h2>
-          <p class="text-xs text-emerald-200/90 font-medium italic" x-text="'「' + persona.quote + '」'"></p>
-          <p class="text-xs text-slate-300 leading-relaxed text-left pt-2 border-t border-slate-700/80" x-text="persona.desc"></p>
-        </div>
+    <!-- ================= 第二頁：手動記帳表單 ================= -->
+    <section x-show="currentTab === 'form'" x-transition class="space-y-5">
+      <div class="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl space-y-4">
+        <h2 class="text-md font-semibold text-slate-200 border-b border-slate-700 pb-2 flex justify-between items-center">
+          <span>📝 記錄一筆人際互動體質</span>
+          <span class="text-xs text-slate-400">雲端同步</span>
+        </h2>
 
-        <!-- 雷達圖 Canvas 容器 -->
         <div class="space-y-2">
-          <span class="text-xs font-semibold text-slate-400 block">📊 四大潛在心智維度分佈圖</span>
-          <div class="bg-slate-900/70 p-4 rounded-xl border border-slate-700 relative flex justify-center items-center">
-            <canvas id="radarChart" width="300" height="300"></canvas>
+          <label class="text-xs text-slate-300 font-medium">發布身份</label>
+          <div class="flex items-center gap-3">
+            <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+              <input type="checkbox" x-model="form.isAnonymous" class="rounded bg-slate-700 text-emerald-500">
+              <span class="text-xs">匿名發布</span>
+            </label>
+            <input x-show="!form.isAnonymous" type="text" x-model="form.nickname" placeholder="請輸入您的暱稱" class="flex-1 bg-slate-700/80 border border-slate-600 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-400">
           </div>
         </div>
 
-        <!-- 四項維度分數小卡 -->
-        <div class="grid grid-cols-2 gap-2 text-left text-xs">
-          <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/80 flex justify-between items-center">
-            <span class="text-slate-300">🔍 客觀敘事力</span>
-            <span class="font-bold text-emerald-400" x-text="scores.fact + ' / 20'"></span>
-          </div>
-          <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/80 flex justify-between items-center">
-            <span class="text-slate-300">💓 情緒辨識度</span>
-            <span class="font-bold text-emerald-400" x-text="scores.emotion + ' / 20'"></span>
-          </div>
-          <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/80 flex justify-between items-center">
-            <span class="text-slate-300">🧭 動機洞察力</span>
-            <span class="font-bold text-emerald-400" x-text="scores.motive + ' / 20'"></span>
-          </div>
-          <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/80 flex justify-between items-center">
-            <span class="text-slate-300">🤝 彈性協商力</span>
-            <span class="font-bold text-emerald-400" x-text="scores.autonomy + ' / 20'"></span>
+        <div class="space-y-2">
+          <label class="text-xs text-slate-300 font-medium">關係類型</label>
+          <div class="grid grid-cols-3 gap-2">
+            <template x-for="type in ['親情', '友情', '愛情']" :key="type">
+              <button type="button" @click="form.relationType = type"
+                :class="form.relationType === type ? 'bg-emerald-600 text-white border-emerald-500 shadow' : 'bg-slate-700/50 text-slate-400 border-slate-600'"
+                class="py-2.5 border rounded-xl text-xs font-medium transition-all" x-text="type"></button>
+            </template>
           </div>
         </div>
 
-        <!-- 互動盲點與成長建議 -->
-        <div class="bg-slate-900/80 p-4 rounded-xl border border-indigo-500/30 text-left space-y-1.5">
-          <span class="text-xs font-bold text-indigo-400 block">💡 專屬心態盲點與日常小貼士</span>
-          <p class="text-xs text-slate-300 leading-relaxed" x-text="getAdviceComment()"></p>
+        <div class="bg-slate-900/60 p-3.5 rounded-xl border border-red-500/30 space-y-2">
+          <div class="flex justify-between text-xs">
+            <span class="text-red-400 font-bold">🔴 投入成本 (時間/精神/代價)</span>
+            <span class="text-red-400 font-bold text-sm" x-text="form.costScore + ' 分'"></span>
+          </div>
+          <textarea x-model="form.costDesc" rows="2" placeholder="付出的時間、精神或代價..." class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-xs text-white focus:outline-none focus:border-red-400"></textarea>
+          <input type="range" min="1" max="10" x-model.number="form.costScore" class="w-full accent-red-500 h-2 bg-slate-700 rounded-lg cursor-pointer">
         </div>
 
-        <!-- 重新測驗按鈕 -->
-        <button @click="restart()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-lg">
-          🔄 重新測驗一次
+        <div class="bg-slate-900/60 p-3.5 rounded-xl border border-emerald-500/30 space-y-2">
+          <div class="flex justify-between text-xs">
+            <span class="text-emerald-400 font-bold">🟢 獲得收穫 (情感回饋/支持)</span>
+            <span class="text-emerald-400 font-bold text-sm" x-text="form.rewardScore + ' 分'"></span>
+          </div>
+          <textarea x-model="form.rewardDesc" rows="2" placeholder="得到的支持、回饋或收穫..." class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-xs text-white focus:outline-none focus:border-emerald-400"></textarea>
+          <input type="range" min="1" max="10" x-model.number="form.rewardScore" class="w-full accent-emerald-500 h-2 bg-slate-700 rounded-lg cursor-pointer">
+        </div>
+
+        <div class="bg-slate-900/60 p-3.5 rounded-xl border border-amber-500/30 space-y-2">
+          <div class="flex justify-between text-xs text-amber-400">
+            <span class="font-bold">✨ 內在幸福感指數 <span x-text="getEmoji(form.happiness)"></span></span>
+            <span class="font-bold text-sm" x-text="form.happiness + ' / 10'"></span>
+          </div>
+          <input type="range" min="1" max="10" x-model.number="form.happiness" class="w-full accent-amber-500 h-2 bg-slate-700 rounded-lg cursor-pointer">
+        </div>
+
+        <div class="bg-slate-900/60 p-3.5 rounded-xl border border-indigo-500/30 space-y-2">
+          <label class="text-xs text-indigo-400 font-bold block">💬 互動總結與反思感想</label>
+          <textarea x-model="form.reflection" rows="2" placeholder="寫下你對這段關係或這次互動的感悟與反思..." class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-xs text-white focus:outline-none focus:border-indigo-400"></textarea>
+        </div>
+
+        <button type="button" @click="submitToCloud()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs shadow-xl transition-all">
+          🚀 上傳至雲端並前往交流站
         </button>
       </div>
+    </section>
 
+
+    <!-- ================= 第三頁：交流站列表 ================= -->
+    <section x-show="currentTab === 'board'" x-transition class="space-y-4">
+      <div class="flex justify-between items-center bg-slate-800 p-3 rounded-xl border border-slate-700 shadow">
+        <h3 class="text-xs font-bold text-slate-200">📌 大家的心得與交流站</h3>
+        
+        <div class="flex gap-1 bg-slate-900 p-1 rounded-lg border border-slate-700">
+          <template x-for="f in ['全部', '親情', '友情', '愛情']" :key="f">
+            <button @click="filter = f" :class="filter === f ? 'bg-slate-700 text-emerald-400 font-bold' : 'text-slate-400'" class="px-2 py-1 rounded text-[10px] transition-all" x-text="f"></button>
+          </template>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <template x-for="post in filteredPosts" :key="post.id">
+          <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 space-y-3 shadow-xl">
+            <div class="flex justify-between items-start">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-sm text-slate-100" x-text="post.nickname"></span>
+                  <span class="text-[10px] px-2 py-0.5 rounded bg-slate-700 text-emerald-400 font-medium" x-text="post.relationType"></span>
+                </div>
+                <span class="text-[10px] text-slate-400" x-text="post.time"></span>
+              </div>
+              <span class="text-xs font-bold px-2.5 py-1 rounded-full shadow" :class="post.net >= 0 ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-red-950 text-red-400 border border-red-800'" x-text="'淨值 ' + (post.net > 0 ? '+' : '') + post.net"></span>
+            </div>
+
+            <div class="flex gap-2">
+              <span class="text-xs px-2.5 py-0.5 rounded-lg bg-amber-950/80 text-amber-300 border border-amber-800/50">幸福感 <span x-text="post.happiness"></span>/10</span>
+              <span class="text-xs px-2.5 py-0.5 rounded-lg bg-slate-700/80 text-slate-300 font-medium" x-text="post.tag"></span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-xs bg-slate-900/80 p-3 rounded-xl border border-slate-700/60">
+              <div class="border-r border-slate-700 pr-2">
+                <span class="text-red-400 font-bold block mb-1">🔴 投入 (<span x-text="post.costScore"></span>分)</span>
+                <p class="text-slate-300 whitespace-pre-wrap leading-relaxed" x-text="post.costDesc || '無'"></p>
+              </div>
+              <div class="pl-1">
+                <span class="text-emerald-400 font-bold block mb-1">🟢 收獲 (<span x-text="post.rewardScore"></span>分)</span>
+                <p class="text-slate-300 whitespace-pre-wrap leading-relaxed" x-text="post.rewardDesc || '無'"></p>
+              </div>
+            </div>
+
+            <div x-show="post.reflection" class="bg-indigo-950/40 p-3 rounded-xl border border-indigo-500/30 text-xs space-y-1">
+              <span class="text-indigo-400 font-bold block">💬 總結與反思感想</span>
+              <p class="text-slate-300 whitespace-pre-wrap leading-relaxed" x-text="post.reflection"></p>
+            </div>
+
+            <div class="flex justify-end pt-1">
+              <button @click="likePost(post.id)" class="flex items-center gap-1.5 text-xs text-slate-300 bg-slate-700/60 hover:bg-slate-700 px-3 py-1.5 rounded-full border border-slate-600 transition-all">
+                <span>❤️</span>
+                <span x-text="post.likes"></span>
+              </button>
+            </div>
+          </div>
+        </template>
+      </div>
     </section>
 
   </main>
 
   <script>
-    function commQuiz() {
+    const firebaseConfig = {
+      apiKey: "AIzaSyBVHGINoSRfMETVX9ts_JRRgWCKqxBmFbmM",
+      authDomain: "relationship-ledger.firebaseapp.com",
+      databaseURL: "https://relationship-ledger-default-rtdb.firebaseio.com/",
+      projectId: "relationship-ledger",
+      storageBucket: "relationship-ledger.firebasestorage.app",
+      messagingSenderId: "579878838687",
+      appId: "1:579878838687:web:83a2015a0be148f0b5ddaa"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function appData() {
       return {
-        step: 'quiz',
-        currentIndex: 0,
-        scores: {
-          fact: 0,       // 客觀敘事力
-          emotion: 0,    // 情緒辨識度
-          motive: 0,     // 動機洞察力
-          autonomy: 0    // 彈性協商力
-        },
-        chartInstance: null,
+        currentTab: 'quiz',
+        filter: '全部',
+        currentQIndex: 0,
+        quizCompleted: false,
+        scores: { A: 0, B: 0, C: 0, D: 0 },
         
-        options: [
-          { text: '極少發生在我身上', score: 1 },
-          { text: '偶爾會這樣', score: 2 },
-          { text: '經常是這樣', score: 3 },
-          { text: '完全就是我的日常', score: 4 }
-        ],
-
-        // 20道完全打散、極度生活化且沒有標準答案導向的心理情境題
+        // 20 道隱晦的大學生生活情境題
         questions: [
-          { dim: 'fact', tag: '生活場景', text: '1. 回到家發現客廳很亂時，我心裡浮現的第一個念頭通常是「具體有哪些東西散落各處」，而不是「為什麼大家總是不收拾」。' },
-          { dim: 'emotion', tag: '內心劇場', text: '2. 當計畫被打亂、行程被迫延遲時，我能很快察覺到自己心裡究竟是感到「慌亂、疲憊還是無奈」。' },
-          { dim: 'motive', tag: '日常觀察', text: '3. 逛街或搭捷運時，我常會忍不住去想擦身而過的陌生人此時此刻心裡可能正在煩惱些什麼。' },
-          { dim: 'autonomy', tag: '生活習慣', text: '4. 與朋友聚會決定聚餐地點時，我習慣直接說出自己想吃哪一種類型的餐廳，而不是讓大家一直猜。' },
-          
-          { dim: 'fact', tag: '記憶方式', text: '5. 回憶上週發生的爭執或誤會時，我腦海中浮現的畫面多半像記錄片一樣，是當時各自說了什麼、做了什麼。' },
-          { dim: 'emotion', tag: '情緒消化', text: '6. 面對突如其來的低潮或沮喪，我習慣先給自己一段安靜發呆的時間，而不是強迫自己立刻振作起來。' },
-          { dim: 'motive', tag: '人際直覺', text: '7. 聽到身邊的人講出不太好聽的狠話時，我通常不會馬上生氣，而是會想他是不是最近遇到了什麼過不去的關卡。' },
-          { dim: 'autonomy', tag: '個人界線', text: '8. 當朋友臨時約局但我當下真的很累想休息時，我能輕鬆自然地拒絕，而不會內疚一整晚。' },
-
-          { dim: 'fact', tag: '資訊接收', text: '9. 閱讀網路上的爭議新聞或貼文時，我會習慣先找出事件的脈絡與時間點，再決定自己的看法。' },
-          { dim: 'emotion', tag: '情緒表達', text: '10. 當我覺得心裡很受傷或委屈時，我身邊比較親近的人通常能從我的眼神或語調中感受到。' },
-          { dim: 'motive', tag: '價值觀感', text: '11. 我經常覺得，世界上大多數的衝突與對立，其實都源自於彼此心裡對「安全感」或「被重視」的渴望。' },
-          { dim: 'autonomy', tag: '期待管理', text: '12. 對於身邊的人，我習慣抱持「每個人都有自己的生活節奏」的心態，不太會奢望別人照著我的期待過日子。' },
-
-          { dim: 'fact', tag: '自我審視', text: '13. 檢討自己今天的表現時，我傾向一碼歸一碼地看哪些事情做得好、哪些需要調整，而不是直接否定自己的全部。' },
-          { dim: 'emotion', tag: '共感體驗', text: '14. 看電影或影集時，我很容易被主角內心深處那種「孤單卻又倔強」的時刻給觸動到鼻酸。' },
-          { dim: 'motive', tag: '心態模式', text: '15. 面對別人的反覆無常或情緒起伏，我內心比較多的是好奇與理解，而不是覺得對方很麻煩。' },
-          { dim: 'autonomy', tag: '日常選擇', text: '16. 面對生活中的大大小小決定，我通常很清楚這是我自己的選擇，就算結果不如預期也能自己承擔。' },
-
-          { dim: 'fact', tag: '描述事情', text: '17. 向別人轉述一件發生的事情時，我會盡量講得像發生在眼前一樣具體，少用「很誇張」、「超離譜」這種形容詞。' },
-          { dim: 'emotion', tag: '心理韌性', text: '18. 當心裡累積太多情緒快要爆炸時，我會透過寫字、聽音樂或散步等方式，把那些情緒好好宣洩出來。' },
-          { dim: 'motive', tag: '同理視角', text: '19. 即使某個公眾人物或同事的作風我很不喜歡，我依然能理解他所處的位置有他的難處與侷限。' },
-          { dim: 'autonomy', tag: '人際互動', text: '20. 在團體裡要分配任務或提出合作時，我習慣用「大家看看這樣分工行不行」的討論語氣，而不是直接指派。' }
+          { q: "1. 當朋友在系上聚會中開了一個讓你略感不舒服的玩笑時，你的第一反應通常是？", options: [
+            { text: "心裡默默受傷，但立刻告訴自己對方不是故意的，選擇包容。", type: "A" },
+            { text: "找機會私下溫和聊聊，表達剛才那個話題讓你有甚麼樣的感受。", type: "B" },
+            { text: "評估這個玩笑是否踩到界線，若消耗過多心力會減少互動。", type: "C" },
+            { text: "笑笑帶過或轉移話題，覺得不需要太嚴肅看待。", type: "D" }
+          ]},
+          { q: "2. 面對長期向你傾倒負能量、反覆抱怨同一件事的朋友，你內心最常出現的想法是？", options: [
+            { text: "他現在真的很脆弱、很需要陪伴，我要多接住他一些。", type: "A" },
+            { text: "我想聽聽看他背後真正的渴望或困難到底是什麼。", type: "B" },
+            { text: "我的精神成本已經開始透支了，需要適時踩煞車。", type: "C" },
+            { text: "聽聽就好，不用太往心裡去，放輕鬆隨緣。", type: "D" }
+          ]},
+          { q: "3. 當你在分組報告中發現某個組員完全神隱、分工不均時，你會怎麼做？", options: [
+            { text: "擔心直接說出來會破壞團隊和諧，通常選擇自己默默多做一點。", type: "A" },
+            { text: "試著用客觀的現象與大家重新協調大家的負荷與需要。", type: "B" },
+            { text: "直接提出具體的權責劃分，確保自己的付出與收穫對等。", type: "C" },
+            { text: "順其自然，反正期末總會交出去的，不需要太計較。", type: "D" }
+          ]},
+          { q: "4. 當有人臨時放鳥你的約定時，你心裡的反應通常是？", options: [
+            { text: "第一時間擔心對方是不是發生了什麼不好的事。", type: "A" },
+            { text: "會想了解對方的難處，並表達自己空出時間卻落空的感受。", type: "B" },
+            { text: "心裡默默扣分，下次要約他就會更加謹慎評估成本。", type: "C" },
+            { text: "沒關係啊，剛好賺到一個人的自由時間，隨緣就好。", type: "D" }
+          ]},
+          { q: "5. 面對意見和你完全不同、甚至帶有攻擊性的言論時，你的應對方式是？", options: [
+            { text: "為了避免起衝突，通常會選擇沉默或順著對方說。", type: "A" },
+            { text: "試著拆解對方的觀點，找出大家共同在乎的價值是什麼。", type: "B" },
+            { text: "若對方不講道理，直接劃清界線，懶得浪費口水爭辯。", type: "C" },
+            { text: "笑笑點頭敷衍，心裡想著隨便你怎麼想。", type: "D" }
+          ]},
+          { q: "6. 當你在社群平台上看到朋友似乎在發文默默影射或抱怨你時，你會？", options: [
+            { text: "整晚胡思亂想，覺得是不是自己哪裡做錯了惹人討厭。", type: "A" },
+            { text: "找時間直接坦誠溝通，問清楚是不是有什麼誤會。", type: "B" },
+            { text: "評估這段關係是否值得花心力維護，不值得就直接放水流。", type: "C" },
+            { text: "滑過去當作沒看到，別人的情緒與我無關。", type: "D" }
+          ]},
+          { q: "7. 當你同時面臨一堆期末死線，而好朋友又剛好找你訴苦時，你會選擇？", options: [
+            { text: "先放下自己的事，聽朋友講完再說，雖然自己壓力山大。", type: "A" },
+            { text: "溫和地告訴對方自己的死線狀況，約定晚一點或改天再聊。", type: "B" },
+            { text: "直接拒絕，清楚告訴對方目前精力不足無法負荷。", type: "C" },
+            { text: "回個貼圖敷衍一下，繼續趕自己的報告。", type: "D" }
+          ]},
+          { q: "8. 你對於在人群中「表達自己真實的需求或感受」這件事的看法是？", options: [
+            { text: "覺得很難出口，總是把別人的需求擺在自己前面。", type: "A" },
+            { text: "覺得這是互相理解與建立深厚連結的必要過程。", type: "B" },
+            { text: "只有對重要的人才會說，其他人不需要花力氣溝通。", type: "C" },
+            { text: "隨緣啦，講不講得通都無所謂，順其自然就好。", type: "D" }
+          ]},
+          { q: "9. 當一段原本很好的友情或戀情漸漸變得平淡、甚至讓你感到內耗時，你會？", options: [
+            { text: "拼命想要挽回，覺得是不是自己不夠努力。", type: "A" },
+            { text: "嘗試和對方聊聊彼此目前的狀態與期待調整。", type: "B" },
+            { text: "計算這段關係帶來的快樂與內耗，果斷進行停損。", type: "C" },
+            { text: "順其自然淡掉，強求的緣分不會甜。", type: "D" }
+          ]},
+          { q: "10. 當你幫了別人一個忙，但對方卻連一聲謝謝也沒有時，你的反應是？", options: [
+            { text: "心裡有點受傷，但安慰自己沒關係，幫忙本就不求回報。", type: "A" },
+            { text: "心裡會默默記取經驗，下次會更清楚表達自己的期望。", type: "B" },
+            { text: "下次絕對不會再幫他了，精算帳本直接把他列為拒絕往來。", type: "C" },
+            { text: "完全不在意，反正舉手之勞而已。", type: "D" }
+          ]},
+          { q: "11. 在聚會中，你通常扮演什麼樣的角色？", options: [
+            { text: "默默照顧大家、幫忙夾菜倒水、接住冷場的人。", type: "A" },
+            { text: "能夠引導大家聊到心裡話、化解尷尬氣氛的潤滑劑。", type: "B" },
+            { text: "看局勢不對勁就默默閃人、或者只和頻率對的人聊天。", type: "C" },
+            { text: "坐在角落喝飲料、看大家鬧、主打一個佛系參與。", type: "D" }
+          ]},
+          { q: "12. 面對長輩或主管不合理的碎念與指導，你通常會？", options: [
+            { text: "乖乖全部吞下去，事後自己躲起來內耗生悶氣。", type: "A" },
+            { text: "試著用委婉且堅定的語氣表達自己的想法與難處。", type: "B" },
+            { text: "左耳進右耳出，心裡有一把尺，表面敷衍過去。", type: "C" },
+            { text: "點頭微笑當作背景音樂，完全不往心裡去。", type: "D" }
+          ]},
+          { q: "13. 當你聽到身邊的人在吵架或意見不合時，你心裡的直覺反應是？", options: [
+            { text: "覺得好緊張、好有壓迫感，很想趕快跳出來當和事佬。", type: "B" },
+            { text: "觀察雙方各自是在堅持什麼樣的價值或需要。", type: "B" },
+            { text: "只要不波及到我，這場戲還蠻好看的。", type: "D" },
+            { text: "與我無關，保持距離以策安全。", type: "C" }
+          ]},
+          { q: "14. 你認為在一段健康的關係中，最重要的核心是什麼？", options: [
+            { text: "彼此無條件的包容與溫暖陪伴。", type: "A" },
+            { text: "真誠且沒有防備的深度溝通與理解。", type: "B" },
+            { text: "付出與收穫的平衡，以及健康的界線。", type: "C" },
+            { text: "輕鬆自在、互相不造成負擔。", type: "D" }
+          ]},
+          { q: "15. 當你發現自己不小心傷害到別人的感受時，你會？", options: [
+            { text: "超級自責，覺得自己怎麼這麼白目、會難過很久。", type: "A" },
+            { text: "趕快主動找對方聊聊，釐清狀況並誠懇表達歉意。", type: "B" },
+            { text: "如果是對方太敏感，會覺得不需要和小題大作的人計較。", type: "C" },
+            { text: "隨緣啦，人與人之間難免，過陣子就好了。", type: "D" }
+          ]},
+          { q: "16. 每次社交聚會結束回到家後，你的電量狀態通常是？", options: [
+            { text: "常常因為太照顧別人情緒而累癱，需要睡整覺修復。", type: "A" },
+            { text: "覺得有獲得一些深度交流的收穫，但也需要安靜一下。", type: "B" },
+            { text: "精打細算覺得今天這局CP值不高，下次不想去了。", type: "C" },
+            { text: "一如往常平靜，毫無波瀾。", type: "D" }
+          ]},
+          { q: "17. 當朋友向你借錢或借重要物品時，你的內心活動是？", options: [
+            { text: "就算自己手頭有點緊，還是很難開口拒絕對方。", type: "A" },
+            { text: "會關心對方目前遇到什麼狀況，再評估如何協助。", type: "B" },
+            { text: "直接婉拒或設定明確期限，避免後續金錢糾紛。", type: "C" },
+            { text: "隨緣啦，有借有還再借不難，沒還就算了。", type: "D" }
+          ]},
+          { q: "18. 面對生活中的突發狀況或計畫被打亂時，你通常的反應是？", options: [
+            { text: "容易感到焦慮不安，覺得事情怎麼會這樣。", type: "A" },
+            { text: "深呼吸一下，思考當下可以怎麼調整與應對。", type: "B" },
+            { text: "立刻計算停損點跟備用方案，把傷害降到最低。", type: "C" },
+            { text: "船到橋頭自然直，隨遇而安囉。", type: "D" }
+          ]},
+          { q: "19. 你對「拒絕別人」這件事的熟悉程度是？", options: [
+            { text: "超級不擅長，每次拒絕罪惡感都滿出來。", type: "A" },
+            { text: "能夠用溫和但堅定的態度表達自己的考量。", type: "B" },
+            { text: "完全零障礙，不適合或會內耗的一律秒拒絕。", type: "C" },
+            { text: "隨便啦，用開玩笑或推託的方式很輕鬆就帶過了。", type: "D" }
+          ]},
+          { q: "20. 對你而言，人際關係中的「付出」代表著什麼？", options: [
+            { text: "是證明自己有價值、能被大家喜歡的方式。", type: "A" },
+            { text: "是互相滋養、建立心靈連結的橋樑。", type: "B" },
+            { text: "是一場需要雙向平衡、絕不能長期虧損的投資。", type: "C" },
+            { text: "就是隨興所至，開心就好，不用想太多意義。", type: "D" }
+          ]}
         ],
 
-        get currentQuestion() {
-          return this.questions[this.currentIndex];
+        form: { 
+          isAnonymous: true, 
+          nickname: '', 
+          relationType: '友情', 
+          costScore: 5, 
+          costDesc: '', 
+          rewardScore: 7, 
+          rewardDesc: '', 
+          happiness: 8,
+          reflection: '' 
         },
+        posts: [],
 
-        answer(score) {
-          const dim = this.currentQuestion.dim;
-          this.scores[dim] += score;
-
-          if (this.currentIndex < this.questions.length - 1) {
-            this.currentIndex++;
-          } else {
-            this.step = 'result';
-            setTimeout(() => {
-              this.renderChart();
-            }, 100);
-          }
-        },
-
-        renderChart() {
-          const ctx = document.getElementById('radarChart').getContext('2d');
-          const { fact, emotion, motive, autonomy } = this.scores;
-
-          if (this.chartInstance) {
-            this.chartInstance.destroy();
-          }
-
-          this.chartInstance = new Chart(ctx, {
-            type: 'radar',
-            data: {
-              labels: ['客觀敘事力', '情緒辨識度', '動機洞察力', '彈性協商力'],
-              datasets: [{
-                label: '心智風格得分',
-                data: [fact, emotion, motive, autonomy],
-                backgroundColor: 'rgba(16, 185, 129, 0.25)',
-                borderColor: 'rgba(16, 185, 129, 1)',
-                pointBackgroundColor: 'rgba(16, 185, 129, 1)',
-                pointBorderColor: '#fff',
-                borderWidth: 2,
-                pointRadius: 4
-              }]
-            },
-            options: {
-              responsive: true,
-              scales: {
-                r: {
-                  min: 4,
-                  max: 20,
-                  ticks: {
-                    stepSize: 4,
-                    color: '#94a3b8',
-                    backdropColor: 'transparent',
-                    font: { size: 10 }
-                  },
-                  grid: { color: '#334155' },
-                  angleLines: { color: '#334155' },
-                  pointLabels: {
-                    color: '#f8fafc',
-                    font: { size: 12, weight: 'bold' }
-                  }
-                }
-              },
-              plugins: {
-                legend: { display: false }
-              }
+        init() {
+          db.ref('posts').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+              this.posts = Object.keys(data).map(key => ({
+                id: key,
+                ...data[key]
+              })).reverse();
+            } else {
+              this.posts = [];
             }
           });
         },
 
-        get persona() {
-          const { fact, emotion, motive, autonomy } = this.scores;
-          const total = fact + emotion + motive + autonomy;
-          const minScore = Math.min(fact, emotion, motive, autonomy);
-          const maxScore = Math.max(fact, emotion, motive, autonomy);
-
-          if (minScore >= 16) {
-            return {
-              icon: '🕊️',
-              code: 'FEMA · 全能平衡者',
-              title: '內心清明、溫柔而有力量的「心靈擺渡人」',
-              quote: '看得清現實的形狀，也接得住生命的重量。',
-              desc: '你的心智狀態展現出極其罕見的流動與平衡！你既擁有冷靜客觀的敘事眼光，不被情緒帶著走；又具備細膩的同理心與宏觀的動機洞察。你在生活中有著極佳的邊界感，既不強求他人也不消耗自己，是眾人眼中無比安心的存在。'
-            };
-          }
-
-          if (total <= 42) {
-            return {
-              icon: '🦔',
-              code: 'SOFT · 內心防衛者',
-              title: '外表隨性、內心敏銳的「刺蝟守護者」',
-              quote: '我只是習慣把柔軟藏在心底，不想輕易受傷。',
-              desc: '在日常生活中，你其實擁有非常豐富的內心世界與敏銳的感受力，但由於過去承受過不少生活壓力，讓你習慣在人際互動中保持防備。有時你寧可自己把委屈吞下，也不願多說。給自己多一點空間吧，你比想像中更值得被溫柔以待。'
-            };
-          }
-
-          if (maxScore === fact) {
-            return {
-              icon: '🦉',
-              code: 'F-TYPE · 理性觀察家',
-              title: '思路清晰、追求真相的「事實解碼員」',
-              quote: '讓證據說話，生活自然會變得簡單許多。',
-              desc: '你擁有一雙極其銳利的理性眼睛！當周遭的人深陷情緒漩渦、互相抱怨時，你總能像局外人一樣冷靜看清事情的本質與時間脈絡。這種不隨波逐流的特質，讓你無論在學業、工作或應對複雜狀況時，都顯得特別可靠。'
-            };
-          }
-
-          if (maxScore === emotion) {
-            return {
-              icon: '🦌',
-              code: 'E-TYPE · 深度共感者',
-              title: '敏銳溫柔、情感豐沛的「心靈氣象台」',
-              quote: '空氣中每一絲細微的波動，我都輕輕接住了。',
-              desc: '你的情感雷達極度靈敏！你對於自己內心的喜怒哀樂有著很深的覺察，也能毫不費力地共情身邊人的脆弱與無奈。你從不吝嗇給予陪伴，只要身邊的人心情不好，往往第一個就會想到找你傾訴。'
-            };
-          }
-
-          if (maxScore === motive) {
-            return {
-              icon: '🐋',
-              code: 'M-TYPE · 靈魂潛行者',
-              title: '看透本質、充滿哲思的「底層守望者」',
-              quote: '在行為的表面之下，藏著每個人靈魂的渴求。',
-              desc: '你有著一顆老靈魂，習慣去探索人類行為背後的深層動機。面對別人的無理取鬧或古怪脾氣，你很少第一時間動怒，而是會去想對方究竟在恐懼什麼。這種深刻的同理與理解力，使你散發著一種沉穩而智慧的氣場。'
-            };
-          }
-
-          return {
-            icon: '🦊',
-            code: 'A-TYPE · 邊界魔法師',
-            title: '鬆弛有度、活得通透的「自由航海家」',
-            quote: '我為自己的人生負責，也把自由還給每個人。',
-            desc: '你在人際關係中擁有極高的「鬆弛感」！你既懂得在生活中為自己爭取空間、坦然拒絕不喜歡的事，也不會過度干涉或期待別人配合你。這種乾淨俐落、互相尊重的相處風格，讓你的周遭總是圍繞著舒服而沒有壓力的氛圍。'
-          };
+        get filteredPosts() {
+          if (this.filter === '全部') return this.posts;
+          return this.posts.filter(p => p.relationType === this.filter);
         },
 
-        getAdviceComment() {
-          const { fact, emotion, motive, autonomy } = this.scores;
-          const minScore = Math.min(fact, emotion, motive, autonomy);
+        getEmoji(v) {
+          if (v >= 8) return '🥰';
+          if (v >= 6) return '😊';
+          if (v >= 4) return '😐';
+          return '😔';
+        },
 
-          if (minScore >= 16) {
-            return "你的各項心智維度都發展得很平均！在面對生活的風浪時，你已經具備足夠的內在支撐力，繼續保持這份覺察與彈性即可。";
-          }
-
-          if (minScore === fact) {
-            return "【日常心態小提醒：回到眼見為憑的事實】當生活不如意或起摩擦時，你比較容易陷入主觀的焦慮或放大負面情緒。試著在腦中把「我覺得大家都在針對我」還原成「今天發生了哪三件事」，內心的緊繃感會減輕很多。";
-          } else if (minScore === emotion) {
-            return "【日常心態小提醒：練習和自己的情緒做朋友】你習慣把真實的情緒（如疲憊、失落）壓在心裡默默消化。試著給自己允許脆弱的空間，哪怕只是跟信任的人說一句「我今天真的有點累」，也能釋放掉不少心理負擔。";
-          } else if (minScore === motive) {
-            return "【日常心態小提醒：多留一點好奇心給他人】當周遭的人事物不如預期時，你容易直接感到煩躁。試著在心裡多給自己一個問號：「他這麼做，背後會不會其實有他的難處呢？」這會讓你看待世界的方式變得更柔軟。";
+        answerQuestion(type) {
+          this.scores[type]++;
+          if (this.currentQIndex < this.questions.length - 1) {
+            this.currentQIndex++;
           } else {
-            return "【日常心態小提醒：把期待化為清楚的邀請】在生活或人際中，你常常因為怕麻煩別人而選擇默默自己扛，或習慣心裡暗自期待別人主動發現。試著學習大方開口表達你的需求，你會發現世界比你想的好溝通。";
+            this.quizCompleted = true;
           }
         },
 
-        restart() {
-          this.step = 'quiz';
-          this.currentIndex = 0;
-          this.scores = { fact: 0, emotion: 0, motive: 0, autonomy: 0 };
+        resetQuiz() {
+          this.currentQIndex = 0;
+          this.quizCompleted = false;
+          this.scores = { A: 0, B: 0, C: 0, D: 0 };
+        },
+
+        get resultPersona() {
+          // 找出 A, B, C, D 最高分的選項
+          let maxType = 'A';
+          let maxVal = -1;
+          for (let k in this.scores) {
+            if (this.scores[k] > maxVal) {
+              maxVal = this.scores[k];
+              maxType = k;
+            }
+          }
+
+          if (maxType === 'A') {
+            return {
+              type: '共感覺察型',
+              emoji: '🧋',
+              title: '免費情緒勞動大代工',
+              desc: '你是身邊朋友的 24 小時免費心理諮商所！動不動就接收到別人的情緒廢氣，明明自己報告也還沒寫完、期末快被當，還是忍不住一邊喊著「我真的會累死」，一邊默默幫別人順毛。主打一個「我痛苦但朋友不能難過」。',
+              suggestedHappiness: 6,
+              costText: '長期吸收身邊親友的負能量與情緒廢氣，精神成本極高。',
+              rewardText: '獲得大家的高度依賴與溫暖的情感連結。',
+              reflectionText: '測驗結果：雖然常常當情緒吸塵器累得半死，但心裡還是很在乎大家，需要學會好好照顧自己的界線。'
+            };
+          } else if (maxType === 'B') {
+            return {
+              type: '清明對話型',
+              emoji: '🧠',
+              title: '人間清醒大師 / 結巴終結者',
+              desc: '你擁有超強的對話邏輯與同理心！當別人想情勒或開啟情緒化對話時，你總能冷靜拋出一句精準的對話，直接把對方的無效溝通降落。堪稱團體中的團康救星與溝通界清流。',
+              suggestedHappiness: 9,
+              costText: '需要花費心思傾聽、拆解對方的需求與客觀事實。',
+              rewardText: '收穫高品質的深度理解、良好溝通與心靈共鳴。',
+              reflectionText: '測驗結果：透過清晰的對話與非暴力溝通，讓每一次互動都成為滋養彼此的養分。'
+            };
+          } else if (maxType === 'C') {
+            return {
+              type: '界線平衡型',
+              emoji: '⚖️',
+              title: '精準停損的賽局玩家',
+              desc: '你是人際關係裡的斜槓會計師！付出多少心力、得到多少快樂回報，心裡都有一張嚴格的成本效益表。一旦發現這段關係開始「內耗大於滋養」，秒開防禦結界、直接斷捨離。',
+              suggestedHappiness: 8,
+              costText: '設定嚴格界線與防禦成本，過濾掉不必要的消耗。',
+              rewardText: '享有極高的自主權與乾淨清爽的社交圈。',
+              reflectionText: '測驗結果：人際關係不是做慈善，懂得精準停損、保護自己的能量才是最高級的自我照顧。'
+            };
+          } else {
+            return {
+              type: '自在觀望型',
+              emoji: '🍃',
+              title: '佛系躺平漂流木',
+              desc: '你把「隨緣」跟「不糾結」刻在DNA裡！對人際拉扯和社交局抱持著「隨風而去、隨遇而安」的態度。別人焦慮得要死，你永遠在旁邊喝手搖飲看戲，絕不內耗、絕不黏人。',
+              suggestedHappiness: 8,
+              costText: '幾近於零的社交內耗與精神成本。',
+              rewardText: '獲得無拘無束的自由與隨遇而安的快樂。',
+              reflectionText: '測驗結果：世事紛擾，主打一個隨緣過生活，地球轉一轉總會有辦法的，輕鬆看待一切。'
+            };
+          }
+        },
+
+        submitQuizResult() {
+          const persona = this.resultPersona;
+          this.form.costDesc = persona.costText;
+          this.form.rewardDesc = persona.rewardText;
+          this.form.reflection = persona.reflectionText;
+          this.form.happiness = persona.suggestedHappiness;
+
+          const net = this.form.rewardScore - this.form.costScore;
+          let tag = '平衡狀態';
+          if (net >= 4) tag = '高品質滋養';
+          else if (net >= 2) tag = '穩健獲利';
+          else if (net <= -3) tag = '嚴重透支警訊';
+          else if (net < 0) tag = '情感赤字';
+
+          const newPost = {
+            nickname: this.form.isAnonymous ? '匿名' : (this.form.nickname || '路人'),
+            relationType: this.form.relationType,
+            costScore: this.form.costScore,
+            costDesc: this.form.costDesc,
+            rewardScore: this.form.rewardScore,
+            rewardDesc: this.form.rewardDesc,
+            happiness: this.form.happiness,
+            reflection: `【心測結果：${persona.emoji} ${persona.title}】\n` + this.form.reflection,
+            net: net,
+            tag: tag,
+            likes: 0,
+            time: new Date().toLocaleString('zh-TW', { hour12: false, month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+          };
+
+          db.ref('posts').push(newPost, (error) => {
+            if (!error) {
+              this.currentTab = 'board';
+              this.resetQuiz();
+            } else {
+              alert('上傳失敗，請稍後再試！');
+            }
+          });
+        },
+
+        submitToCloud() {
+          const net = this.form.rewardScore - this.form.costScore;
+          let tag = '平衡狀態';
+          if (net >= 4) tag = '高品質滋養';
+          else if (net >= 2) tag = '穩健獲利';
+          else if (net <= -3) tag = '嚴重透支警訊';
+          else if (net < 0) tag = '情感赤字';
+
+          const newPost = {
+            nickname: this.form.isAnonymous ? '匿名' : (this.form.nickname || '路人'),
+            relationType: this.form.relationType,
+            costScore: this.form.costScore,
+            costDesc: this.form.costDesc,
+            rewardScore: this.form.rewardScore,
+            rewardDesc: this.form.rewardDesc,
+            happiness: this.form.happiness,
+            reflection: this.form.reflection,
+            net: net,
+            tag: tag,
+            likes: 0,
+            time: new Date().toLocaleString('zh-TW', { hour12: false, month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+          };
+
+          db.ref('posts').push(newPost, (error) => {
+            if (!error) {
+              this.form.costDesc = '';
+              this.form.rewardDesc = '';
+              this.form.reflection = '';
+              this.currentTab = 'board';
+            } else {
+              alert('上傳失敗，請稍後再試！');
+            }
+          });
+        },
+
+        likePost(id) {
+          const postRef = db.ref('posts/' + id);
+          postRef.once('value', (snapshot) => {
+            const post = snapshot.val();
+            if (post) {
+              postRef.update({ likes: (post.likes || 0) + 1 });
+            }
+          });
         }
       }
     }
   </script>
 </body>
-</html>
+                  </html>
