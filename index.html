@@ -45,11 +45,11 @@
 
   <main class="max-w-md mx-auto p-4 space-y-6">
 
-    <!-- ================= 第一頁：20題隱晦情境測驗 ================= -->
+    <!-- ================= 第一頁：20題 NVC 導向隱晦情境測驗 ================= -->
     <section x-show="currentTab === 'quiz'" x-transition class="space-y-4">
       <div class="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl space-y-4" x-show="!quizCompleted">
         <div class="flex justify-between items-center border-b border-slate-700 pb-2">
-          <h2 class="text-sm font-bold text-emerald-400">🧠 內在人際風格與體質心測</h2>
+          <h2 class="text-sm font-bold text-emerald-400">🧠 NVC 人際風格心測</h2>
           <span class="text-xs text-slate-400" x-text="'第 ' + (currentQIndex + 1) + ' / 20 題'"></span>
         </div>
 
@@ -73,7 +73,7 @@
         </div>
       </div>
 
-      <!-- 測驗結果畫面 -->
+      <!-- 測驗結果畫面（含 NVC 四維雷達圖） -->
       <div class="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl space-y-4" x-show="quizCompleted" x-transition>
         <div class="text-center space-y-2 border-b border-slate-700 pb-4">
           <span class="text-3xl" x-text="resultPersona.emoji"></span>
@@ -81,13 +81,19 @@
           <p class="text-xs text-slate-300 leading-relaxed px-2" x-text="resultPersona.desc"></p>
         </div>
 
+        <!-- 雷達圖畫布容器 -->
+        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700 flex flex-col items-center justify-center space-y-2">
+          <span class="text-xs text-slate-400 font-medium">📊 NVC 四維人際體質雷達圖</span>
+          <canvas id="radarCanvas" width="260" height="220" class="w-full max-h-[220px]"></canvas>
+        </div>
+
         <div class="bg-slate-900/70 p-3.5 rounded-xl border border-slate-700 space-y-3 text-xs">
           <div class="flex justify-between items-center text-slate-300">
-            <span>測驗對應特質代號：</span>
+            <span>測驗對應主導維度：</span>
             <span class="font-bold text-emerald-400" x-text="resultPersona.type"></span>
           </div>
           <div class="flex justify-between items-center text-slate-300">
-            <span>建議感情/人際幸福感預設：</span>
+            <span>建議內在幸福感預設：</span>
             <span class="font-bold text-amber-400" x-text="resultPersona.suggestedHappiness + ' / 10分'"></span>
           </div>
         </div>
@@ -105,7 +111,7 @@
         </div>
 
         <button type="button" @click="submitQuizResult()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs shadow-xl transition-all">
-          🚀 將此測驗結果與感想同步至雲端交流站
+          🚀 將此心測結果與雷達圖同步至雲端交流站
         </button>
         <button type="button" @click="resetQuiz()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-300 py-2 rounded-xl text-xs transition-all">
           🔄 重新測驗
@@ -264,126 +270,125 @@
         quizCompleted: false,
         scores: { A: 0, B: 0, C: 0, D: 0 },
         
-        // 20 道隱晦的大學生生活情境題
         questions: [
           { q: "1. 當朋友在系上聚會中開了一個讓你略感不舒服的玩笑時，你的第一反應通常是？", options: [
-            { text: "心裡默默受傷，但立刻告訴自己對方不是故意的，選擇包容。", type: "A" },
-            { text: "找機會私下溫和聊聊，表達剛才那個話題讓你有甚麼樣的感受。", type: "B" },
-            { text: "評估這個玩笑是否踩到界線，若消耗過多心力會減少互動。", type: "C" },
+            { text: "精準評估這個玩笑是否踩到界線，若消耗過多心力會減少互動。", type: "A" },
+            { text: "心裡默默受傷，但立刻告訴自己對方不是故意的，選擇包容。", type: "B" },
+            { text: "找機會私下溫和聊聊，表達剛才那個話題讓你有甚麼樣的感受。", type: "C" },
             { text: "笑笑帶過或轉移話題，覺得不需要太嚴肅看待。", type: "D" }
           ]},
           { q: "2. 面對長期向你傾倒負能量、反覆抱怨同一件事的朋友，你內心最常出現的想法是？", options: [
-            { text: "他現在真的很脆弱、很需要陪伴，我要多接住他一些。", type: "A" },
-            { text: "我想聽聽看他背後真正的渴望或困難到底是什麼。", type: "B" },
-            { text: "我的精神成本已經開始透支了，需要適時踩煞車。", type: "C" },
+            { text: "我的精神成本已經開始透支了，需要適時踩煞車。", type: "A" },
+            { text: "他現在真的很脆弱、很需要陪伴，我要多接住他一些。", type: "B" },
+            { text: "我想聽聽看他背後真正的渴望或困難到底是什麼。", type: "C" },
             { text: "聽聽就好，不用太往心裡去，放輕鬆隨緣。", type: "D" }
           ]},
           { q: "3. 當你在分組報告中發現某個組員完全神隱、分工不均時，你會怎麼做？", options: [
-            { text: "擔心直接說出來會破壞團隊和諧，通常選擇自己默默多做一點。", type: "A" },
-            { text: "試著用客觀的現象與大家重新協調大家的負荷與需要。", type: "B" },
-            { text: "直接提出具體的權責劃分，確保自己的付出與收穫對等。", type: "C" },
+            { text: "直接提出具體的權責劃分，確保自己的付出與收穫對等。", type: "A" },
+            { text: "擔心直接說出來會破壞團隊和諧，選擇自己默默多做一點。", type: "B" },
+            { text: "試著用客觀的現象與大家重新協調大家的負荷與需要。", type: "C" },
             { text: "順其自然，反正期末總會交出去的，不需要太計較。", type: "D" }
           ]},
           { q: "4. 當有人臨時放鳥你的約定時，你心裡的反應通常是？", options: [
-            { text: "第一時間擔心對方是不是發生了什麼不好的事。", type: "A" },
-            { text: "會想了解對方的難處，並表達自己空出時間卻落空的感受。", type: "B" },
-            { text: "心裡默默扣分，下次要約他就會更加謹慎評估成本。", type: "C" },
+            { text: "心裡默默扣分，下次要約他就會更加謹慎評估成本。", type: "A" },
+            { text: "第一時間擔心對方是不是發生了什麼不好的事。", type: "B" },
+            { text: "會想了解對方的難處，並表達自己空出時間卻落空的感受。", type: "C" },
             { text: "沒關係啊，剛好賺到一個人的自由時間，隨緣就好。", type: "D" }
           ]},
           { q: "5. 面對意見和你完全不同、甚至帶有攻擊性的言論時，你的應對方式是？", options: [
-            { text: "為了避免起衝突，通常會選擇沉默或順著對方說。", type: "A" },
-            { text: "試著拆解對方的觀點，找出大家共同在乎的價值是什麼。", type: "B" },
-            { text: "若對方不講道理，直接劃清界線，懶得浪費口水爭辯。", type: "C" },
+            { text: "若對方不講道理，直接劃清界線，懶得浪費口水爭辯。", type: "A" },
+            { text: "為了避免起衝突，通常會選擇沉默或順著對方說。", type: "B" },
+            { text: "試著拆解對方的觀點，找出大家共同在乎的價值是什麼。", type: "C" },
             { text: "笑笑點頭敷衍，心裡想著隨便你怎麼想。", type: "D" }
           ]},
           { q: "6. 當你在社群平台上看到朋友似乎在發文默默影射或抱怨你時，你會？", options: [
-            { text: "整晚胡思亂想，覺得是不是自己哪裡做錯了惹人討厭。", type: "A" },
-            { text: "找時間直接坦誠溝通，問清楚是不是有什麼誤會。", type: "B" },
-            { text: "評估這段關係是否值得花心力維護，不值得就直接放水流。", type: "C" },
+            { text: "評估這段關係是否值得花心力維護，不值得就直接放水流。", type: "A" },
+            { text: "整晚胡思亂想，覺得是不是自己哪裡做錯了惹人討厭。", type: "B" },
+            { text: "找時間直接坦誠溝通，問清楚是不是有什麼誤會。", type: "C" },
             { text: "滑過去當作沒看到，別人的情緒與我無關。", type: "D" }
           ]},
           { q: "7. 當你同時面臨一堆期末死線，而好朋友又剛好找你訴苦時，你會選擇？", options: [
-            { text: "先放下自己的事，聽朋友講完再說，雖然自己壓力山大。", type: "A" },
-            { text: "溫和地告訴對方自己的死線狀況，約定晚一點或改天再聊。", type: "B" },
-            { text: "直接拒絕，清楚告訴對方目前精力不足無法負荷。", type: "C" },
+            { text: "直接拒絕，清楚告訴對方目前精力不足無法負荷。", type: "A" },
+            { text: "先放下自己的事，聽朋友講完再說，雖然自己壓力山大。", type: "B" },
+            { text: "溫和地告訴對方自己的死線狀況，約定晚一點或改天再聊。", type: "C" },
             { text: "回個貼圖敷衍一下，繼續趕自己的報告。", type: "D" }
           ]},
           { q: "8. 你對於在人群中「表達自己真實的需求或感受」這件事的看法是？", options: [
-            { text: "覺得很難出口，總是把別人的需求擺在自己前面。", type: "A" },
-            { text: "覺得這是互相理解與建立深厚連結的必要過程。", type: "B" },
-            { text: "只有對重要的人才會說，其他人不需要花力氣溝通。", type: "C" },
+            { text: "只有對重要的人才會說，其他人不需要花力氣溝通。", type: "A" },
+            { text: "覺得很難出口，總是把別人的需求擺在自己前面。", type: "B" },
+            { text: "覺得這是互相理解與建立深厚連結的必要過程。", type: "C" },
             { text: "隨緣啦，講不講得通都無所謂，順其自然就好。", type: "D" }
           ]},
           { q: "9. 當一段原本很好的友情或戀情漸漸變得平淡、甚至讓你感到內耗時，你會？", options: [
-            { text: "拼命想要挽回，覺得是不是自己不夠努力。", type: "A" },
-            { text: "嘗試和對方聊聊彼此目前的狀態與期待調整。", type: "B" },
-            { text: "計算這段關係帶來的快樂與內耗，果斷進行停損。", type: "C" },
+            { text: "計算這段關係帶來的快樂與內耗，果斷進行停損。", type: "A" },
+            { text: "拼命想要挽回，覺得是不是自己不夠努力。", type: "B" },
+            { text: "嘗試和對方聊聊彼此目前的狀態與期待調整。", type: "C" },
             { text: "順其自然淡掉，強求的緣分不會甜。", type: "D" }
           ]},
           { q: "10. 當你幫了別人一個忙，但對方卻連一聲謝謝也沒有時，你的反應是？", options: [
-            { text: "心裡有點受傷，但安慰自己沒關係，幫忙本就不求回報。", type: "A" },
-            { text: "心裡會默默記取經驗，下次會更清楚表達自己的期望。", type: "B" },
-            { text: "下次絕對不會再幫他了，精算帳本直接把他列為拒絕往來。", type: "C" },
+            { text: "下次絕對不會再幫他了，精算帳本直接把他列為拒絕往來。", type: "A" },
+            { text: "心裡有點受傷，但安慰自己沒關係，幫忙本就不求回報。", type: "B" },
+            { text: "心裡會默默記取經驗，下次會更清楚表達自己的期望。", type: "C" },
             { text: "完全不在意，反正舉手之勞而已。", type: "D" }
           ]},
           { q: "11. 在聚會中，你通常扮演什麼樣的角色？", options: [
-            { text: "默默照顧大家、幫忙夾菜倒水、接住冷場的人。", type: "A" },
-            { text: "能夠引導大家聊到心裡話、化解尷尬氣氛的潤滑劑。", type: "B" },
-            { text: "看局勢不對勁就默默閃人、或者只和頻率對的人聊天。", type: "C" },
+            { text: "看局勢不對勁就默默閃人、或者只和頻率對的人聊天。", type: "A" },
+            { text: "默默照顧大家、幫忙夾菜倒水、接住冷場的人。", type: "B" },
+            { text: "能夠引導大家聊到心裡話、化解尷尬氣氛的潤滑劑。", type: "C" },
             { text: "坐在角落喝飲料、看大家鬧、主打一個佛系參與。", type: "D" }
           ]},
           { q: "12. 面對長輩或主管不合理的碎念與指導，你通常會？", options: [
-            { text: "乖乖全部吞下去，事後自己躲起來內耗生悶氣。", type: "A" },
-            { text: "試著用委婉且堅定的語氣表達自己的想法與難處。", type: "B" },
-            { text: "左耳進右耳出，心裡有一把尺，表面敷衍過去。", type: "C" },
+            { text: "左耳進右耳出，心裡有一把尺，表面敷衍過去。", type: "A" },
+            { text: "乖乖全部吞下去，事後自己躲起來內耗生悶氣。", type: "B" },
+            { text: "試著用委婉且堅定的語氣表達自己的想法與難處。", type: "C" },
             { text: "點頭微笑當作背景音樂，完全不往心裡去。", type: "D" }
           ]},
           { q: "13. 當你聽到身邊的人在吵架或意見不合時，你心裡的直覺反應是？", options: [
+            { text: "只要不波及到我，這場戲還蠻好看的。", type: "A" },
             { text: "覺得好緊張、好有壓迫感，很想趕快跳出來當和事佬。", type: "B" },
-            { text: "觀察雙方各自是在堅持什麼樣的價值或需要。", type: "B" },
-            { text: "只要不波及到我，這場戲還蠻好看的。", type: "D" },
-            { text: "與我無關，保持距離以策安全。", type: "C" }
+            { text: "觀察雙方各自是在堅持什麼樣的價值或需要。", type: "C" },
+            { text: "與我無關，保持距離以策安全。", type: "D" }
           ]},
           { q: "14. 你認為在一段健康的關係中，最重要的核心是什麼？", options: [
-            { text: "彼此無條件的包容與溫暖陪伴。", type: "A" },
-            { text: "真誠且沒有防備的深度溝通與理解。", type: "B" },
-            { text: "付出與收穫的平衡，以及健康的界線。", type: "C" },
+            { text: "付出與收穫的平衡，以及健康的界線。", type: "A" },
+            { text: "彼此無條件的包容與溫暖陪伴。", type: "B" },
+            { text: "真誠且沒有防備的深度溝通與理解。", type: "C" },
             { text: "輕鬆自在、互相不造成負擔。", type: "D" }
           ]},
           { q: "15. 當你發現自己不小心傷害到別人的感受時，你會？", options: [
-            { text: "超級自責，覺得自己怎麼這麼白目、會難過很久。", type: "A" },
-            { text: "趕快主動找對方聊聊，釐清狀況並誠懇表達歉意。", type: "B" },
-            { text: "如果是對方太敏感，會覺得不需要和小題大作的人計較。", type: "C" },
+            { text: "如果是對方太敏感，會覺得不需要和小題大作的人計較。", type: "A" },
+            { text: "超級自責，覺得自己怎麼這麼白目、會難過很久。", type: "B" },
+            { text: "趕快主動找對方聊聊，釐清狀況並誠懇表達歉意。", type: "C" },
             { text: "隨緣啦，人與人之間難免，過陣子就好了。", type: "D" }
           ]},
           { q: "16. 每次社交聚會結束回到家後，你的電量狀態通常是？", options: [
-            { text: "常常因為太照顧別人情緒而累癱，需要睡整覺修復。", type: "A" },
-            { text: "覺得有獲得一些深度交流的收穫，但也需要安靜一下。", type: "B" },
-            { text: "精打細算覺得今天這局CP值不高，下次不想去了。", type: "C" },
+            { text: "精打細算覺得今天這局CP值不高，下次不想去了。", type: "A" },
+            { text: "常常因為太照顧別人情緒而累癱，需要睡整覺修復。", type: "B" },
+            { text: "覺得有獲得一些深度交流的收穫，但也需要安靜一下。", type: "C" },
             { text: "一如往常平靜，毫無波瀾。", type: "D" }
           ]},
           { q: "17. 當朋友向你借錢或借重要物品時，你的內心活動是？", options: [
-            { text: "就算自己手頭有點緊，還是很難開口拒絕對方。", type: "A" },
-            { text: "會關心對方目前遇到什麼狀況，再評估如何協助。", type: "B" },
-            { text: "直接婉拒或設定明確期限，避免後續金錢糾紛。", type: "C" },
+            { text: "直接婉拒或設定明確期限，避免後續金錢糾紛。", type: "A" },
+            { text: "就算自己手頭有點緊，還是很難開口拒絕對方。", type: "B" },
+            { text: "會關心對方目前遇到什麼狀況，再評估如何協助。", type: "C" },
             { text: "隨緣啦，有借有還再借不難，沒還就算了。", type: "D" }
           ]},
           { q: "18. 面對生活中的突發狀況或計畫被打亂時，你通常的反應是？", options: [
-            { text: "容易感到焦慮不安，覺得事情怎麼會這樣。", type: "A" },
-            { text: "深呼吸一下，思考當下可以怎麼調整與應對。", type: "B" },
-            { text: "立刻計算停損點跟備用方案，把傷害降到最低。", type: "C" },
+            { text: "立刻計算停損點跟備用方案，把傷害降到最低。", type: "A" },
+            { text: "容易感到焦慮不安，覺得事情怎麼會這樣。", type: "B" },
+            { text: "深呼吸一下，思考當下可以怎麼調整與應對。", type: "C" },
             { text: "船到橋頭自然直，隨遇而安囉。", type: "D" }
           ]},
           { q: "19. 你對「拒絕別人」這件事的熟悉程度是？", options: [
-            { text: "超級不擅長，每次拒絕罪惡感都滿出來。", type: "A" },
-            { text: "能夠用溫和但堅定的態度表達自己的考量。", type: "B" },
-            { text: "完全零障礙，不適合或會內耗的一律秒拒絕。", type: "C" },
+            { text: "完全零障礙，不適合或會內耗的一律秒拒絕。", type: "A" },
+            { text: "超級不擅長，每次拒絕罪惡感都滿出來。", type: "B" },
+            { text: "能夠用溫和但堅定的態度表達自己的考量。", type: "C" },
             { text: "隨便啦，用開玩笑或推託的方式很輕鬆就帶過了。", type: "D" }
           ]},
           { q: "20. 對你而言，人際關係中的「付出」代表著什麼？", options: [
-            { text: "是證明自己有價值、能被大家喜歡的方式。", type: "A" },
-            { text: "是互相滋養、建立心靈連結的橋樑。", type: "B" },
-            { text: "是一場需要雙向平衡、絕不能長期虧損的投資。", type: "C" },
+            { text: "是一場需要雙向平衡、絕不能長期虧損的投資。", type: "A" },
+            { text: "是證明自己有價值、能被大家喜歡的方式。", type: "B" },
+            { text: "是互相滋養、建立心靈連結的橋樑。", type: "C" },
             { text: "就是隨興所至，開心就好，不用想太多意義。", type: "D" }
           ]}
         ],
@@ -433,6 +438,7 @@
             this.currentQIndex++;
           } else {
             this.quizCompleted = true;
+            setTimeout(() => this.drawRadarChart(), 50);
           }
         },
 
@@ -442,8 +448,84 @@
           this.scores = { A: 0, B: 0, C: 0, D: 0 };
         },
 
+        drawRadarChart() {
+          const canvas = document.getElementById('radarCanvas');
+          if (!canvas) return;
+          const ctx = canvas.getContext('2d');
+          const width = canvas.width;
+          const height = canvas.height;
+          const cx = width / 2;
+          const cy = height / 2 + 5;
+          const radius = 65;
+
+          ctx.clearRect(0, 0, width, height);
+
+          const labels = ['觀察 (界線平衡)', '感受 (情緒勞動)', '需要 (清明對話)', '請求 (佛系漂流)'];
+          const maxScore = Math.max(5, this.scores.A, this.scores.B, this.scores.C, this.scores.D);
+          const values = [
+            this.scores.A / maxScore,
+            this.scores.B / maxScore,
+            this.scores.C / maxScore,
+            this.scores.D / maxScore
+          ];
+
+          for (let level = 1; level <= 3; level++) {
+            const r = (radius / 3) * level;
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for (let i = 0; i < 4; i++) {
+              const angle = (Math.PI / 2) * i - Math.PI / 2;
+              const x = cx + r * Math.cos(angle);
+              const y = cy + r * Math.sin(angle);
+              if (i === 0) ctx.moveTo(x, y);
+              else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.stroke();
+          }
+
+          ctx.strokeStyle = '#475569';
+          ctx.beginPath();
+          ctx.moveTo(cx, cy - radius); ctx.lineTo(cx, cy + radius);
+          ctx.moveTo(cx - radius, cy); ctx.lineTo(cx + radius, cy);
+          ctx.stroke();
+
+          ctx.beginPath();
+          const points = [];
+          for (let i = 0; i < 4; i++) {
+            const angle = (Math.PI / 2) * i - Math.PI / 2;
+            const r = radius * values[i];
+            const x = cx + r * Math.cos(angle);
+            const y = cy + r * Math.sin(angle);
+            points.push({ x, y });
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.25)';
+          ctx.fill();
+          ctx.strokeStyle = '#10b981';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          ctx.fillStyle = '#34d399';
+          points.forEach((p, i) => {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '9px sans-serif';
+            ctx.textAlign = 'center';
+            if (i === 0) { ctx.fillText(labels[0], cx, cy - radius - 8); }
+            else if (i === 1) { ctx.textAlign = 'left'; ctx.fillText(labels[1], cx + radius + 6, cy + 3); }
+            else if (i === 2) { ctx.fillText(labels[2], cx, cy + radius + 14); }
+            else if (i === 3) { ctx.textAlign = 'right'; ctx.fillText(labels[3], cx - radius - 6, cy + 3); }
+          });
+        },
+
         get resultPersona() {
-          // 找出 A, B, C, D 最高分的選項
           let maxType = 'A';
           let maxVal = -1;
           for (let k in this.scores) {
@@ -455,43 +537,43 @@
 
           if (maxType === 'A') {
             return {
-              type: '共感覺察型',
-              emoji: '🧋',
-              title: '免費情緒勞動大代工',
-              desc: '你是身邊朋友的 24 小時免費心理諮商所！動不動就接收到別人的情緒廢氣，明明自己報告也還沒寫完、期末快被當，還是忍不住一邊喊著「我真的會累死」，一邊默默幫別人順毛。主打一個「我痛苦但朋友不能難過」。',
-              suggestedHappiness: 6,
-              costText: '長期吸收身邊親友的負能量與情緒廢氣，精神成本極高。',
-              rewardText: '獲得大家的高度依賴與溫暖的情感連結。',
-              reflectionText: '測驗結果：雖然常常當情緒吸塵器累得半死，但心裡還是很在乎大家，需要學會好好照顧自己的界線。'
-            };
-          } else if (maxType === 'B') {
-            return {
-              type: '清明對話型',
-              emoji: '🧠',
-              title: '人間清醒大師 / 結巴終結者',
-              desc: '你擁有超強的對話邏輯與同理心！當別人想情勒或開啟情緒化對話時，你總能冷靜拋出一句精準的對話，直接把對方的無效溝通降落。堪稱團體中的團康救星與溝通界清流。',
-              suggestedHappiness: 9,
-              costText: '需要花費心思傾聽、拆解對方的需求與客觀事實。',
-              rewardText: '收穫高品質的深度理解、良好溝通與心靈共鳴。',
-              reflectionText: '測驗結果：透過清晰的對話與非暴力溝通，讓每一次互動都成為滋養彼此的養分。'
-            };
-          } else if (maxType === 'C') {
-            return {
-              type: '界線平衡型',
+              type: '【NVC維度：觀察】',
               emoji: '⚖️',
               title: '精準停損的賽局玩家',
-              desc: '你是人際關係裡的斜槓會計師！付出多少心力、得到多少快樂回報，心裡都有一張嚴格的成本效益表。一旦發現這段關係開始「內耗大於滋養」，秒開防禦結界、直接斷捨離。',
+              desc: '你擅長客觀觀察事實與成本！付出多少心力、得到多少回報，心裡都有一張嚴格的成本效益表。一旦發現這段關係開始「內耗大於滋養」，秒開防禦結界、直接斷捨離。',
               suggestedHappiness: 8,
               costText: '設定嚴格界線與防禦成本，過濾掉不必要的消耗。',
               rewardText: '享有極高的自主權與乾淨清爽的社交圈。',
               reflectionText: '測驗結果：人際關係不是做慈善，懂得精準停損、保護自己的能量才是最高級的自我照顧。'
             };
+          } else if (maxType === 'B') {
+            return {
+              type: '【NVC維度：感受】',
+              emoji: '🧋',
+              title: '免費情緒勞動大代工',
+              desc: '你對周遭的感受極度敏銳！身邊親友的 24 小時免費心理諮商所就是你。動不動就接收到別人的情緒廢氣，明明自己報告也還沒寫完，還是忍不住幫別人順毛。',
+              suggestedHappiness: 6,
+              costText: '長期吸收身邊親友的負能量與情緒廢氣，精神成本極高。',
+              rewardText: '獲得大家的高度依賴與溫暖的情感連結。',
+              reflectionText: '測驗結果：雖然常常當情緒吸塵器累得半死，但心裡還是很在乎大家，需要學會好好照顧自己的界線。'
+            };
+          } else if (maxType === 'C') {
+            return {
+              type: '【NVC維度：需要】',
+              emoji: '🧠',
+              title: '人間清醒大師 / 結巴終結者',
+              desc: '你總能直指核心看清大家的深層需要！當別人想情勒或開啟情緒化對話時，你總能冷靜拋出一句精準的對話，直接把對方的無效溝通降落，堪稱溝通界清流。',
+              suggestedHappiness: 9,
+              costText: '需要花費心思傾聽、拆解對方的需求與客觀事實。',
+              rewardText: '收穫高品質的深度理解、良好溝通與心靈共鳴。',
+              reflectionText: '測驗結果：透過清晰的對話與非暴力溝通，讓每一次互動都成為滋養彼此的養分。'
+            };
           } else {
             return {
-              type: '自在觀望型',
+              type: '【NVC維度：請求】',
               emoji: '🍃',
               title: '佛系躺平漂流木',
-              desc: '你把「隨緣」跟「不糾結」刻在DNA裡！對人際拉扯和社交局抱持著「隨風而去、隨遇而安」的態度。別人焦慮得要死，你永遠在旁邊喝手搖飲看戲，絕不內耗、絕不黏人。',
+              desc: '你把「隨緣」跟「不糾結」刻在DNA裡！用最輕鬆的請求與視角看待人際拉扯。別人焦慮得要死，你永遠在旁邊喝手搖飲看戲，絕不內耗、絕不黏人。',
               suggestedHappiness: 8,
               costText: '幾近於零的社交內耗與精神成本。',
               rewardText: '獲得無拘無束的自由與隨遇而安的快樂。',
@@ -587,4 +669,4 @@
     }
   </script>
 </body>
-                  </html>
+              </html>
