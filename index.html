@@ -73,7 +73,7 @@
         </div>
       </div>
 
-      <!-- 測驗結果畫面（含 NVC 四維雷達圖） -->
+      <!-- 測驗結果畫面（含高畫質雷達圖） -->
       <div class="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl space-y-4" x-show="quizCompleted" x-transition>
         <div class="text-center space-y-2 border-b border-slate-700 pb-4">
           <span class="text-3xl" x-text="resultPersona.emoji"></span>
@@ -84,7 +84,8 @@
         <!-- 雷達圖畫布容器 -->
         <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700 flex flex-col items-center justify-center space-y-2">
           <span class="text-xs text-slate-400 font-medium">📊 NVC 四維人際體質雷達圖</span>
-          <canvas id="radarCanvas" width="260" height="220" class="w-full max-h-[220px]"></canvas>
+          <!-- 加上 style 限制顯示尺寸，實際 canvas 像素會在 JS 中放大以達到超高解析度 -->
+          <canvas id="radarCanvas" style="width: 260px; height: 220px;" class="w-full max-h-[220px]"></canvas>
         </div>
 
         <div class="bg-slate-900/70 p-3.5 rounded-xl border border-slate-700 space-y-3 text-xs">
@@ -452,13 +453,21 @@
           const canvas = document.getElementById('radarCanvas');
           if (!canvas) return;
           const ctx = canvas.getContext('2d');
-          const width = canvas.width;
-          const height = canvas.height;
-          const cx = width / 2;
-          const cy = height / 2 + 5;
+
+          // 🔥 Retina 高解析度清晰化處理
+          const dpr = window.devicePixelRatio || 1;
+          const displayWidth = 260;
+          const displayHeight = 220;
+
+          canvas.width = displayWidth * dpr;
+          canvas.height = displayHeight * dpr;
+          ctx.scale(dpr, dpr);
+
+          const cx = displayWidth / 2;
+          const cy = displayHeight / 2 + 5;
           const radius = 65;
 
-          ctx.clearRect(0, 0, width, height);
+          ctx.clearRect(0, 0, displayWidth, displayHeight);
 
           const labels = ['觀察 (界線平衡)', '感受 (情緒勞動)', '需要 (清明對話)', '請求 (佛系漂流)'];
           const maxScore = Math.max(5, this.scores.A, this.scores.B, this.scores.C, this.scores.D);
@@ -516,7 +525,7 @@
             ctx.fill();
 
             ctx.fillStyle = '#94a3b8';
-            ctx.font = '9px sans-serif';
+            ctx.font = '10px sans-serif';
             ctx.textAlign = 'center';
             if (i === 0) { ctx.fillText(labels[0], cx, cy - radius - 8); }
             else if (i === 1) { ctx.textAlign = 'left'; ctx.fillText(labels[1], cx + radius + 6, cy + 3); }
@@ -669,4 +678,4 @@
     }
   </script>
 </body>
-              </html>
+            </html>
