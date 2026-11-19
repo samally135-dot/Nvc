@@ -50,17 +50,17 @@
 
   <main class="max-w-md mx-auto p-4 space-y-6">
 
-    <!-- ================= 第一頁：20題 NVC 導向隱晦情境測驗 ================= -->
+    <!-- ================= 第一頁：10題 NVC 導向隱晦情境測驗 ================= -->
     <section x-show="currentTab === 'quiz'" x-transition class="space-y-4">
       <div class="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl space-y-4" x-show="!quizCompleted">
         <div class="flex justify-between items-center border-b border-slate-700 pb-2">
           <h2 class="text-sm font-bold text-emerald-400">🧠 NVC 8 大角色體質心測</h2>
-          <span class="text-xs text-slate-400" x-text="'第 ' + (currentQIndex + 1) + ' / 20 題'"></span>
+          <span class="text-xs text-slate-400" x-text="'第 ' + (currentQIndex + 1) + ' / 10 題'"></span>
         </div>
 
         <!-- 進度條 -->
         <div class="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
-          <div class="bg-emerald-500 h-full transition-all duration-300" :style="'width: ' + ((currentQIndex + 1) / 20 * 100) + '%'"></div>
+          <div class="bg-emerald-500 h-full transition-all duration-300" :style="'width: ' + ((currentQIndex + 1) / 10 * 100) + '%'"></div>
         </div>
 
         <!-- 題目與選項 -->
@@ -78,7 +78,7 @@
         </div>
       </div>
 
-      <!-- 🎮 RPG 遊戲角色能力面板結果畫面（8 大角色版） -->
+      <!-- 🎮 RPG 遊戲角色能力面板結果畫面（10題精簡版） -->
       <div class="bg-slate-800 rounded-2xl border-2 shadow-2xl overflow-hidden transition-all duration-300"
         :class="resultPersona.cardBorderClass"
         x-show="quizCompleted" x-transition>
@@ -144,7 +144,7 @@
             <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
               <span class="text-[11px] font-mono font-bold text-slate-300 tracking-wider">STATUS // 四維體質能力分佈</span>
               <span class="text-[10px] font-mono"
-                :class="resultPersona.accentTextClass">TOTAL: 20 PTS</span>
+                :class="resultPersona.accentTextClass">TOTAL: 10 PTS</span>
             </div>
 
             <div class="flex justify-center py-1">
@@ -155,40 +155,40 @@
               <div class="space-y-1">
                 <div class="flex justify-between text-slate-300">
                   <span>⚖️ 觀察力 (界線與局勢)</span>
-                  <span class="text-sky-400 font-bold" x-text="scores.A + ' / 20 (' + Math.round(scores.A/20*100) + '%)'"></span>
+                  <span class="text-sky-400 font-bold" x-text="scores.A + ' / 10 (' + Math.round(scores.A/10*100) + '%)'"></span>
                 </div>
                 <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700/50">
-                  <div class="bg-sky-400 h-full rounded-full transition-all duration-500" :style="'width: ' + (scores.A / 20 * 100) + '%'"></div>
+                  <div class="bg-sky-400 h-full rounded-full transition-all duration-500" :style="'width: ' + (scores.A / 10 * 100) + '%'"></div>
                 </div>
               </div>
 
               <div class="space-y-1">
                 <div class="flex justify-between text-slate-300">
                   <span>🧋 共感力 (情緒與陪伴)</span>
-                  <span class="text-rose-400 font-bold" x-text="scores.B + ' / 20 (' + Math.round(scores.B/20*100) + '%)'"></span>
+                  <span class="text-rose-400 font-bold" x-text="scores.B + ' / 10 (' + Math.round(scores.B/10*100) + '%)'"></span>
                 </div>
                 <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700/50">
-                  <div class="bg-rose-400 h-full rounded-full transition-all duration-500" :style="'width: ' + (scores.B / 20 * 100) + '%'"></div>
+                  <div class="bg-rose-400 h-full rounded-full transition-all duration-500" :style="'width: ' + (scores.B / 10 * 100) + '%'"></div>
                 </div>
               </div>
 
               <div class="space-y-1">
                 <div class="flex justify-between text-slate-300">
                   <span>🧠 洞察力 (對話與譯碼)</span>
-                  <span class="text-emerald-400 font-bold" x-text="scores.C + ' / 20 (' + Math.round(scores.C/20*100) + '%)'"></span>
+                  <span class="text-emerald-400 font-bold" x-text="scores.C + ' / 10 (' + Math.round(scores.C/10*100) + '%)'"></span>
                 </div>
                 <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700/50">
-                  <div class="bg-emerald-400 h-full rounded-full transition-all duration-500" :style="'width: ' + (scores.C / 20 * 100) + '%'"></div>
+                  <div class="bg-emerald-400 h-full rounded-full transition-all duration-500" :style="'width: ' + (scores.C / 10 * 100) + '%'"></div>
                 </div>
               </div>
 
               <div class="space-y-1">
                 <div class="flex justify-between text-slate-300">
                   <span>🍃 灑脫度 (自在與抽離)</span>
-                  <span class="text-amber-400 font-bold" x-text="scores.D + ' / 20 (' + Math.round(scores.D/20*100) + '%)'"></span>
+                  <span class="text-amber-400 font-bold" x-text="scores.D + ' / 10 (' + Math.round(scores.D/10*100) + '%)'"></span>
                 </div>
                 <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700/50">
-                  <div class="bg-amber-400 h-full rounded-full transition-all duration-500" :style="'width: ' + (scores.D / 20 * 100) + '%'"></div>
+                  <div class="bg-amber-400 h-full rounded-full transition-all duration-500" :style="'width: ' + (scores.D / 10 * 100) + '%'"></div>
                 </div>
               </div>
             </div>
@@ -704,7 +704,7 @@
         },
         
         questions: [
-          { q: "1. 當朋友在系上聚會中開了一個讓你略感不舒服的玩笑時，你的第一反應通常是？", options: [
+          { q: "1. 當朋友在聚會中開了一個讓你略感不舒服的玩笑時，你的第一反應通常是？", options: [
             { text: "精準評估這個玩笑是否踩到界線，若消耗過多心力會減少互動。", type: "A" },
             { text: "心裡默默受傷，但立刻告訴自己對方不是故意的，選擇包容。", type: "B" },
             { text: "找機會私下溫和聊聊，表達剛才那個話題讓你有甚麼樣的感受。", type: "C" },
@@ -734,91 +734,31 @@
             { text: "試著拆解對方的觀點，找出大家共同在乎的價值是什麼。", type: "C" },
             { text: "笑笑點頭敷衍，心裡想著隨便你怎麼想。", type: "D" }
           ]},
-          { q: "6. 當你在社群平台上看到朋友似乎在發文默默影射或抱怨你時，你會？", options: [
-            { text: "評估這段關係是否值得花心力維護，不值得就直接放水流。", type: "A" },
-            { text: "整晚胡思亂想，覺得是不是自己哪裡做錯了惹人討厭。", type: "B" },
-            { text: "找時間直接坦誠溝通，問清楚是不是有什麼誤會。", type: "C" },
-            { text: "滑過去當作沒看到，別人的情緒與我無關。", type: "D" }
-          ]},
-          { q: "7. 當你同時面臨一堆期末死線，而好朋友又剛好找你訴苦時，你會選擇？", options: [
+          { q: "6. 當你同時面臨一堆死線，而好朋友又剛好找你訴苦時，你會選擇？", options: [
             { text: "直接拒絕，清楚告訴對方目前精力不足無法負荷。", type: "A" },
             { text: "先放下自己的事，聽朋友講完再說，雖然自己壓力山大。", type: "B" },
             { text: "溫和地告訴對方自己的死線狀況，約定晚一點或改天再聊。", type: "C" },
-            { text: "回個貼圖敷衍一下，繼續趕自己的報告。", type: "D" }
+            { text: "回個貼圖敷衍一下，繼續趕自己的事。", type: "D" }
           ]},
-          { q: "8. 你對於在人群中「表達自己真實的需求或感受」這件事的看法是？", options: [
-            { text: "只有對重要的人才會說，其他人不需要花力氣溝通。", type: "A" },
-            { text: "覺得很難出口，總是把別人的需求擺在自己前面。", type: "B" },
-            { text: "覺得這是互相理解與建立深厚連結的必要過程。", type: "C" },
-            { text: "隨緣啦，講不講得通都無所謂，順其自然就好。", type: "D" }
-          ]},
-          { q: "9. 當一段原本很好的友情或戀情漸漸變得平淡、甚至讓你感到內耗時，你會？", options: [
-            { text: "計算這段關係帶來的快樂與內耗，果斷進行停損。", type: "A" },
-            { text: "拼命想要挽回，覺得是不是自己不夠努力。", type: "B" },
-            { text: "嘗試和對方聊聊彼此目前的狀態與期待調整。", type: "C" },
-            { text: "順其自然淡掉，強求的緣分不會甜。", type: "D" }
-          ]},
-          { q: "10. 當你幫了別人一個忙，但對方卻連一聲謝謝也沒有時，你的反應是？", options: [
-            { text: "下次絕對不會再幫他了，精算帳本直接把他列為拒絕往來。", type: "A" },
-            { text: "心裡有點受傷，但安慰自己沒關係，幫忙本就不求回報。", type: "B" },
-            { text: "心裡會默默記取經驗，下次會更清楚表達自己的期望。", type: "C" },
-            { text: "完全不在意，反正舉手之勞而已。", type: "D" }
-          ]},
-          { q: "11. 在聚會中，你通常扮演什麼樣的角色？", options: [
+          { q: "7. 在聚會中，你通常扮演什麼樣的角色？", options: [
             { text: "看局勢不對勁就默默閃人、或者只和頻率對的人聊天。", type: "A" },
             { text: "默默照顧大家、幫忙夾菜倒水、接住冷場的人。", type: "B" },
             { text: "能夠引導大家聊到心裡話、化解尷尬氣氛的潤滑劑。", type: "C" },
             { text: "坐在角落喝飲料、看大家鬧、主打一個佛系參與。", type: "D" }
           ]},
-          { q: "12. 面對長輩或主管不合理的碎念與指導，你通常會？", options: [
-            { text: "左耳進右耳出，心裡有一把尺，表面敷衍過去。", type: "A" },
-            { text: "乖乖全部吞下去，事後自己躲起來內耗生悶氣。", type: "B" },
-            { text: "試著用委婉且堅定的語氣表達自己的想法與難處。", type: "C" },
-            { text: "點頭微笑當作背景音樂，完全不往心裡去。", type: "D" }
-          ]},
-          { q: "13. 當你聽到身邊的人在吵架或意見不合時，你心裡的直覺反應是？", options: [
+          { q: "8. 當你聽到身邊的人在吵架或意見不合時，你心裡的直覺反應是？", options: [
             { text: "只要不波及到我，這場戲還蠻好看。", type: "A" },
             { text: "覺得好緊張、好有壓迫感，很想趕快跳出來當和事佬。", type: "B" },
             { text: "觀察雙方各自是在堅持什麼樣的價值或需要。", type: "C" },
             { text: "與我無關，保持距離以策安全。", type: "D" }
           ]},
-          { q: "14. 你認為在一段健康的關係中，最重要的核心是什麼？", options: [
-            { text: "付出與收穫的平衡，以及健康的界線。", type: "A" },
-            { text: "彼此無條件的包容與溫暖陪伴。", type: "B" },
-            { text: "真誠且沒有防備的深度溝通與理解。", type: "C" },
-            { text: "輕鬆自在、互相不造成負擔。", type: "D" }
-          ]},
-          { q: "15. 當你發現自己不小心傷害到別人的感受時，你會？", options: [
-            { text: "如果是對方太敏感，會覺得不需要和小題大作的人計較。", type: "A" },
-            { text: "超級自責，覺得自己怎麼這麼白目、會難過很久。", type: "B" },
-            { text: "趕快主動找對方聊聊，釐清狀況並誠懇表達歉意。", type: "C" },
-            { text: "隨緣啦，人與人之間難免，過陣子就好了。", type: "D" }
-          ]},
-          { q: "16. 每次社交聚會結束回到家後，你的電量狀態通常是？", options: [
+          { q: "9. 每次社交聚會結束回到家後，你的電量狀態通常是？", options: [
             { text: "精打細算覺得今天這局CP值不高，下次不想去了。", type: "A" },
             { text: "常常因為太照顧別人情緒而累癱，需要睡整覺修復。", type: "B" },
             { text: "覺得有獲得一些深度交流的收穫，但也需要安靜一下。", type: "C" },
             { text: "一如往常平靜，毫無波瀾。", type: "D" }
           ]},
-          { q: "17. 當朋友向你借錢或借重要物品時，你的內心活動是？", options: [
-            { text: "直接婉拒或設定明確期限，避免後續金錢糾紛。", type: "A" },
-            { text: "就算自己手頭有點緊，還是很難開口拒絕對方。", type: "B" },
-            { text: "會關心對方目前遇到什麼狀況，再評估如何協助。", type: "C" },
-            { text: "隨緣啦，有借有還再借不難，沒還就算了。", type: "D" }
-          ]},
-          { q: "18. 面對生活中的突發狀況或計畫被打亂時，你通常的反應是？", options: [
-            { text: "立刻計算停損點跟備用方案，把傷害降到最低。", type: "A" },
-            { text: "容易感到焦慮不安，覺得事情怎麼會這樣。", type: "B" },
-            { text: "深呼吸一下，思考當下可以怎麼調整與應對。", type: "C" },
-            { text: "船到橋頭自然直，隨遇而安囉。", type: "D" }
-          ]},
-          { q: "19. 你對「拒絕別人」這件事的熟悉程度是？", options: [
-            { text: "完全零障礙，不適合或會內耗的一律秒拒絕。", type: "A" },
-            { text: "超級不擅長，每次拒絕罪惡感都滿出來。", type: "B" },
-            { text: "能夠用溫和但堅定的態度表達自己的考量。", type: "C" },
-            { text: "隨便啦，用開玩笑或推託的方式很輕鬆就帶過了。", type: "D" }
-          ]},
-          { q: "20. 對你而言，人際關係中的「付出」代表著什麼？", options: [
+          { q: "10. 對你而言，人際關係中的「付出」代表著什麼？", options: [
             { text: "是一場需要雙向平衡、絕不能長期虧損的投資。", type: "A" },
             { text: "是證明自己有價值、能被大家喜歡的方式。", type: "B" },
             { text: "是互相滋養、建立心靈連結的橋樑。", type: "C" },
@@ -908,7 +848,7 @@
 
           const persona = this.resultPersona;
           const labels = ['觀察 (界線局勢)', '感受 (共感陪伴)', '需要 (對話譯碼)', '請求 (自在抽離)'];
-          const maxScore = Math.max(5, this.scores.A, this.scores.B, this.scores.C, this.scores.D);
+          const maxScore = Math.max(3, this.scores.A, this.scores.B, this.scores.C, this.scores.D);
           const values = [
             this.scores.A / maxScore,
             this.scores.B / maxScore,
@@ -983,13 +923,13 @@
           let chosen = this.personas.A1;
 
           if (topType === 'A') {
-            chosen = (topScore >= 12 || secondType === 'D') ? this.personas.A1 : this.personas.A2;
+            chosen = (topScore >= 6 || secondType === 'D') ? this.personas.A1 : this.personas.A2;
           } else if (topType === 'B') {
-            chosen = (topScore >= 12 || secondType === 'C') ? this.personas.B1 : this.personas.B2;
+            chosen = (topScore >= 6 || secondType === 'C') ? this.personas.B1 : this.personas.B2;
           } else if (topType === 'C') {
-            chosen = (topScore >= 12 || secondType === 'A') ? this.personas.C1 : this.personas.C2;
+            chosen = (topScore >= 6 || secondType === 'A') ? this.personas.C1 : this.personas.C2;
           } else {
-            chosen = (topScore >= 12 || secondType === 'B') ? this.personas.D1 : this.personas.D2;
+            chosen = (topScore >= 6 || secondType === 'B') ? this.personas.D1 : this.personas.D2;
           }
 
           return {
