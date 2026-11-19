@@ -100,6 +100,7 @@
                 <span class="text-[10px] font-mono text-amber-400 font-bold">LV.99</span>
               </div>
               <h2 class="text-base font-bold text-white tracking-wide mt-1" x-text="resultPersona.title"></h2>
+              <p class="text-[10px] text-slate-400 font-mono mt-0.5" x-text="resultPersona.comboLabel"></p>
             </div>
           </div>
         </div>
@@ -972,20 +973,29 @@
         },
 
         get resultPersona() {
+          const dimNames = { A: '觀察', B: '感受', C: '需要', D: '請求' };
           const entries = Object.entries(this.scores).sort((a, b) => b[1] - a[1]);
           const topType = entries[0][0];
+          const topScore = entries[0][1];
           const secondType = entries[1][0];
+          const secondScore = entries[1][1];
 
-          // 依最高分維度與次高分維度搭配決定 8 大角色之一
+          let chosen = this.personas.A1;
+
           if (topType === 'A') {
-            return (secondType === 'B' || secondType === 'C') ? this.personas.A2 : this.personas.A1;
+            chosen = (topScore >= 12 || secondType === 'D') ? this.personas.A1 : this.personas.A2;
           } else if (topType === 'B') {
-            return (secondType === 'A' || secondType === 'D') ? this.personas.B2 : this.personas.B1;
+            chosen = (topScore >= 12 || secondType === 'C') ? this.personas.B1 : this.personas.B2;
           } else if (topType === 'C') {
-            return (secondType === 'B' || secondType === 'D') ? this.personas.C2 : this.personas.C1;
+            chosen = (topScore >= 12 || secondType === 'A') ? this.personas.C1 : this.personas.C2;
           } else {
-            return (secondType === 'A' || secondType === 'C') ? this.personas.D2 : this.personas.D1;
+            chosen = (topScore >= 12 || secondType === 'B') ? this.personas.D1 : this.personas.D2;
           }
+
+          return {
+            ...chosen,
+            comboLabel: `主維度：${dimNames[topType]} (${topScore}分) × 副維度：${dimNames[secondType]} (${secondScore}分)`
+          };
         },
 
         submitQuizResult() {
@@ -1075,4 +1085,4 @@
     }
   </script>
 </body>
-            </html>
+                </html>
