@@ -15,29 +15,34 @@
 <body class="bg-slate-900 text-slate-100 min-h-screen pb-24" x-data="appData()">
 
   <!-- 頂部導覽列 -->
-  <header class="bg-slate-800/90 backdrop-blur border-b border-slate-700 sticky top-0 z-50 px-4 py-3 shadow-md">
-    <div class="max-w-md mx-auto flex justify-between items-center">
-      <h1 class="font-bold text-xs md:text-sm text-emerald-400 flex items-center gap-1 truncate">
-        <span>🔍</span> 人際體質測驗與交流站
+  <header class="bg-slate-800/95 backdrop-blur border-b border-slate-700 sticky top-0 z-50 px-3 py-2.5 shadow-md">
+    <div class="max-w-md mx-auto flex justify-between items-center gap-2">
+      <h1 class="font-bold text-xs text-emerald-400 flex items-center gap-1 truncate">
+        <span>🔍</span> <span>NVC 體質站</span>
       </h1>
       
-      <!-- 三頁式切換按鈕 -->
-      <div class="flex bg-slate-900/80 p-1 rounded-xl border border-slate-700 shrink-0 text-xs">
+      <!-- 四頁式切換按鈕 -->
+      <div class="flex bg-slate-900/90 p-1 rounded-xl border border-slate-700 shrink-0 text-[11px] gap-0.5">
         <button @click="currentTab = 'quiz'" 
           :class="currentTab === 'quiz' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white'"
-          class="px-2.5 py-1.5 rounded-lg font-medium transition-all">
+          class="px-2 py-1 rounded-lg font-medium transition-all">
           📝 測驗
+        </button>
+        <button @click="currentTab = 'dex'" 
+          :class="currentTab === 'dex' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white'"
+          class="px-2 py-1 rounded-lg font-medium transition-all">
+          📖 圖鑑
         </button>
         <button @click="currentTab = 'form'" 
           :class="currentTab === 'form' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white'"
-          class="px-2.5 py-1.5 rounded-lg font-medium transition-all">
-          ✍️ 手動記帳
+          class="px-2 py-1 rounded-lg font-medium transition-all">
+          ✍️ 記帳
         </button>
         <button @click="currentTab = 'board'" 
           :class="currentTab === 'board' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white'"
-          class="px-2.5 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1">
-          <span>📌 交流站</span>
-          <span class="bg-slate-800 px-1.5 py-0.2 rounded-full text-[10px]" x-text="posts.length"></span>
+          class="px-2 py-1 rounded-lg font-medium transition-all flex items-center gap-1">
+          <span>📌 交流</span>
+          <span class="bg-slate-800 px-1.5 py-0.2 rounded-full text-[9px]" x-text="posts.length"></span>
         </button>
       </div>
     </div>
@@ -49,7 +54,7 @@
     <section x-show="currentTab === 'quiz'" x-transition class="space-y-4">
       <div class="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl space-y-4" x-show="!quizCompleted">
         <div class="flex justify-between items-center border-b border-slate-700 pb-2">
-          <h2 class="text-sm font-bold text-emerald-400">🧠 NVC 人際風格心測</h2>
+          <h2 class="text-sm font-bold text-emerald-400">🧠 NVC 8 大角色體質心測</h2>
           <span class="text-xs text-slate-400" x-text="'第 ' + (currentQIndex + 1) + ' / 20 題'"></span>
         </div>
 
@@ -73,55 +78,221 @@
         </div>
       </div>
 
-      <!-- 測驗結果畫面（含高畫質雷達圖） -->
-      <div class="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl space-y-4" x-show="quizCompleted" x-transition>
-        <div class="text-center space-y-2 border-b border-slate-700 pb-4">
-          <span class="text-3xl" x-text="resultPersona.emoji"></span>
-          <h2 class="text-base font-bold text-emerald-400" x-text="resultPersona.title"></h2>
-          <p class="text-xs text-slate-300 leading-relaxed px-2" x-text="resultPersona.desc"></p>
-        </div>
-
-        <!-- 雷達圖畫布容器 -->
-        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700 flex flex-col items-center justify-center space-y-2">
-          <span class="text-xs text-slate-400 font-medium">📊 NVC 四維人際體質雷達圖</span>
-          <!-- 加上 style 限制顯示尺寸，實際 canvas 像素會在 JS 中放大以達到超高解析度 -->
-          <canvas id="radarCanvas" style="width: 260px; height: 220px;" class="w-full max-h-[220px]"></canvas>
-        </div>
-
-        <div class="bg-slate-900/70 p-3.5 rounded-xl border border-slate-700 space-y-3 text-xs">
-          <div class="flex justify-between items-center text-slate-300">
-            <span>測驗對應主導維度：</span>
-            <span class="font-bold text-emerald-400" x-text="resultPersona.type"></span>
-          </div>
-          <div class="flex justify-between items-center text-slate-300">
-            <span>建議內在幸福感預設：</span>
-            <span class="font-bold text-amber-400" x-text="resultPersona.suggestedHappiness + ' / 10分'"></span>
-          </div>
-        </div>
-
-        <!-- 一鍵帶入並發布到交流站 -->
-        <div class="space-y-2 pt-2">
-          <label class="text-xs text-slate-300 font-medium">發布身份設定</label>
+      <!-- 🎮 RPG 遊戲角色能力面板結果畫面（8 大角色版） -->
+      <div class="bg-slate-800 rounded-2xl border-2 shadow-2xl overflow-hidden transition-all duration-300"
+        :class="resultPersona.cardBorderClass"
+        x-show="quizCompleted" x-transition>
+        
+        <!-- 頂部角色職階橫幅 -->
+        <div class="p-4 border-b border-slate-700/80 flex items-center justify-between"
+          :class="resultPersona.headerBgClass">
           <div class="flex items-center gap-3">
-            <label class="flex items-center gap-1.5 text-sm cursor-pointer">
-              <input type="checkbox" x-model="form.isAnonymous" class="rounded bg-slate-700 text-emerald-500">
-              <span class="text-xs">匿名發布</span>
-            </label>
-            <input x-show="!form.isAnonymous" type="text" x-model="form.nickname" placeholder="請輸入您的暱稱" class="flex-1 bg-slate-700/80 border border-slate-600 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-400">
+            <div class="w-14 h-14 rounded-2xl bg-slate-900/90 border flex items-center justify-center text-3xl shadow-inner shrink-0"
+              :class="resultPersona.avatarBorderClass"
+              x-text="resultPersona.emoji"></div>
+            <div>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded border"
+                  :class="resultPersona.badgeClass"
+                  x-text="resultPersona.classTag"></span>
+                <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-900/70 text-slate-200 border border-slate-700"
+                  x-text="resultPersona.archetypeTag"></span>
+                <span class="text-[10px] font-mono text-amber-400 font-bold">LV.99</span>
+              </div>
+              <h2 class="text-base font-bold text-white tracking-wide mt-1" x-text="resultPersona.title"></h2>
+            </div>
           </div>
         </div>
 
-        <button type="button" @click="submitQuizResult()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs shadow-xl transition-all">
-          🚀 將此心測結果與雷達圖同步至雲端交流站
-        </button>
-        <button type="button" @click="resetQuiz()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-300 py-2 rounded-xl text-xs transition-all">
-          🔄 重新測驗
-        </button>
+        <div class="p-5 space-y-4">
+          <!-- 一句短評與靈魂名言 -->
+          <div class="bg-slate-900/70 border-l-2 px-3 py-2.5 rounded-r-xl space-y-1"
+            :class="resultPersona.accentBorderClass">
+            <p class="text-xs font-bold leading-relaxed"
+              :class="resultPersona.accentTextClass"
+              x-text="resultPersona.shortReview"></p>
+            <p class="text-[11px] italic text-slate-400 leading-relaxed"
+              x-text="resultPersona.quote"></p>
+          </div>
+
+          <!-- 關鍵字標籤 -->
+          <div class="flex flex-wrap gap-1.5">
+            <template x-for="tag in resultPersona.tags" :key="tag">
+              <span class="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-slate-900/90 border border-slate-700"
+                :class="resultPersona.accentTextClass"
+                x-text="tag"></span>
+            </template>
+          </div>
+
+          <!-- 角色形象外觀與代表道具 -->
+          <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-700/80 space-y-2.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[11px] font-mono font-bold tracking-wider"
+                :class="resultPersona.accentTextClass">🎭 AVATAR PROFILE // 角色形象設定</span>
+              <span class="text-[10px] text-slate-400 shrink-0" x-text="resultPersona.colorPalette"></span>
+            </div>
+            <p class="text-xs text-slate-200 leading-relaxed" x-text="resultPersona.appearance"></p>
+            <div class="bg-slate-800/80 rounded-lg p-2.5 border border-slate-700/60 text-xs space-y-1">
+              <span class="text-[11px] font-bold text-amber-300 block" x-text="'🎒 代表道具：' + resultPersona.propName"></span>
+              <p class="text-[11px] text-slate-300 leading-relaxed" x-text="resultPersona.propDesc"></p>
+            </div>
+          </div>
+
+          <!-- 雷達圖 + 基礎能力值數值條 -->
+          <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-700/80 space-y-3">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
+              <span class="text-[11px] font-mono font-bold text-slate-300 tracking-wider">STATUS // 四維體質能力分佈</span>
+              <span class="text-[10px] font-mono"
+                :class="resultPersona.accentTextClass">TOTAL: 20 PTS</span>
+            </div>
+
+            <div class="flex justify-center py-1">
+              <canvas id="radarCanvas" style="width: 260px; height: 220px;" class="w-full max-h-[220px]"></canvas>
+            </div>
+
+            <div class="space-y-2 pt-1 font-mono text-[11px]">
+              <div class="space-y-1">
+                <div class="flex justify-between text-slate-300">
+                  <span>⚖️ 觀察力 (界線與局勢)</span>
+                  <span class="text-sky-400 font-bold" x-text="scores.A + ' / 20 (' + Math.round(scores.A/20*100) + '%)'"></span>
+                </div>
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700/50">
+                  <div class="bg-sky-400 h-full rounded-full transition-all duration-500" :style="'width: ' + (scores.A / 20 * 100) + '%'"></div>
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <div class="flex justify-between text-slate-300">
+                  <span>🧋 共感力 (情緒與陪伴)</span>
+                  <span class="text-rose-400 font-bold" x-text="scores.B + ' / 20 (' + Math.round(scores.B/20*100) + '%)'"></span>
+                </div>
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700/50">
+                  <div class="bg-rose-400 h-full rounded-full transition-all duration-500" :style="'width: ' + (scores.B / 20 * 100) + '%'"></div>
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <div class="flex justify-between text-slate-300">
+                  <span>🧠 洞察力 (對話與譯碼)</span>
+                  <span class="text-emerald-400 font-bold" x-text="scores.C + ' / 20 (' + Math.round(scores.C/20*100) + '%)'"></span>
+                </div>
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700/50">
+                  <div class="bg-emerald-400 h-full rounded-full transition-all duration-500" :style="'width: ' + (scores.C / 20 * 100) + '%'"></div>
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <div class="flex justify-between text-slate-300">
+                  <span>🍃 灑脫度 (自在與抽離)</span>
+                  <span class="text-amber-400 font-bold" x-text="scores.D + ' / 20 (' + Math.round(scores.D/20*100) + '%)'"></span>
+                </div>
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700/50">
+                  <div class="bg-amber-400 h-full rounded-full transition-all duration-500" :style="'width: ' + (scores.D / 20 * 100) + '%'"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 角色傳記與天賦技能 -->
+          <div class="space-y-2.5 text-xs">
+            <div class="bg-slate-900/70 p-3.5 rounded-xl border border-slate-700/80 space-y-1.5">
+              <span class="text-[11px] font-mono font-bold block"
+                :class="resultPersona.accentTextClass">📜 CHARACTER LORE // 角色特質解析</span>
+              <p class="text-slate-300 leading-relaxed" x-text="resultPersona.desc"></p>
+            </div>
+
+            <div class="bg-indigo-950/30 p-3.5 rounded-xl border border-indigo-500/30 space-y-1.5">
+              <span class="text-[11px] font-mono font-bold text-indigo-300 block" x-text="'✨ PASSIVE SKILL // 被動天賦：【' + resultPersona.skillName + '】'"></span>
+              <p class="text-slate-300 leading-relaxed" x-text="resultPersona.reminder"></p>
+            </div>
+          </div>
+
+          <!-- 一鍵帶入並發布到交流站 -->
+          <div class="space-y-2 pt-2 border-t border-slate-700/80">
+            <label class="text-xs text-slate-300 font-medium">發布身份設定</label>
+            <div class="flex items-center gap-3">
+              <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+                <input type="checkbox" x-model="form.isAnonymous" class="rounded bg-slate-700 text-emerald-500">
+                <span class="text-xs">匿名發布</span>
+              </label>
+              <input x-show="!form.isAnonymous" type="text" x-model="form.nickname" placeholder="請輸入您的暱稱" class="flex-1 bg-slate-700/80 border border-slate-600 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-400">
+            </div>
+          </div>
+
+          <button type="button" @click="submitQuizResult()" class="w-full font-bold py-3 rounded-xl text-xs shadow-xl transition-all text-white"
+            :class="resultPersona.buttonClass">
+            🚀 將角色能力卡同步至雲端交流站
+          </button>
+          <button type="button" @click="resetQuiz()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-300 py-2 rounded-xl text-xs transition-all">
+            🔄 重新檢測
+          </button>
+        </div>
       </div>
     </section>
 
 
-    <!-- ================= 第二頁：手動記帳表單 ================= -->
+    <!-- ================= 第二頁：8 大 NVC 角色圖鑑總覽 ================= -->
+    <section x-show="currentTab === 'dex'" x-transition class="space-y-4">
+      <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 shadow-xl space-y-3">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-sm font-bold text-emerald-400">📖 NVC 8 大角色圖鑑</h2>
+            <p class="text-[11px] text-slate-400 mt-0.5">探索觀察、感受、需要、請求四大維度的 8 種人際角色</p>
+          </div>
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-900 text-slate-300 border border-slate-700" x-text="filteredPersonas.length + ' / 8'"></span>
+        </div>
+
+        <!-- 維度篩選器 -->
+        <div class="flex gap-1 bg-slate-900 p-1 rounded-xl border border-slate-700 overflow-x-auto text-[11px]">
+          <template x-for="dim in ['全部', '觀察', '感受', '需要', '請求']" :key="dim">
+            <button @click="dexFilter = dim"
+              :class="dexFilter === dim ? 'bg-emerald-600 text-white font-bold shadow' : 'text-slate-400 hover:text-white'"
+              class="flex-1 py-1.5 px-2 rounded-lg transition-all whitespace-nowrap" x-text="dim"></button>
+          </template>
+        </div>
+      </div>
+
+      <!-- 8 位角色卡片列表 -->
+      <div class="space-y-3.5">
+        <template x-for="p in filteredPersonas" :key="p.id">
+          <div class="bg-slate-800 rounded-2xl border-2 overflow-hidden shadow-xl" :class="p.cardBorderClass">
+            <div class="p-3.5 border-b border-slate-700/80 flex items-center justify-between gap-2" :class="p.headerBgClass">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-11 h-11 rounded-xl bg-slate-900/90 border flex items-center justify-center text-2xl shrink-0" :class="p.avatarBorderClass" x-text="p.emoji"></div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border" :class="p.badgeClass" x-text="p.dimension + '維度'"></span>
+                    <span class="text-[10px] text-slate-300 font-medium" x-text="p.archetypeTag"></span>
+                  </div>
+                  <h3 class="text-sm font-bold text-white truncate mt-0.5" x-text="p.title"></h3>
+                </div>
+              </div>
+              <span class="text-[10px] text-slate-300 bg-slate-900/70 px-2 py-1 rounded-lg border border-slate-700/80 shrink-0" x-text="p.colorPalette"></span>
+            </div>
+
+            <div class="p-4 space-y-2.5 text-xs">
+              <p class="font-semibold leading-relaxed" :class="p.accentTextClass" x-text="p.shortReview"></p>
+
+              <div class="flex flex-wrap gap-1.5">
+                <template x-for="tag in p.tags" :key="tag">
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-900/80 text-slate-300 border border-slate-700" x-text="tag"></span>
+                </template>
+              </div>
+
+              <div class="bg-slate-900/75 rounded-xl p-2.5 border border-slate-700/70 space-y-1">
+                <span class="text-[11px] font-bold text-amber-300 block" x-text="'🎒 代表道具：' + p.propName"></span>
+                <p class="text-[11px] text-slate-300 leading-relaxed" x-text="p.propDesc"></p>
+              </div>
+
+              <p class="text-slate-300 leading-relaxed" x-text="p.desc"></p>
+            </div>
+          </div>
+        </template>
+      </div>
+    </section>
+
+
+    <!-- ================= 第三頁：手動記帳表單 ================= -->
     <section x-show="currentTab === 'form'" x-transition class="space-y-5">
       <div class="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl space-y-4">
         <h2 class="text-md font-semibold text-slate-200 border-b border-slate-700 pb-2 flex justify-between items-center">
@@ -189,7 +360,7 @@
     </section>
 
 
-    <!-- ================= 第三頁：交流站列表 ================= -->
+    <!-- ================= 第四頁：交流站列表 ================= -->
     <section x-show="currentTab === 'board'" x-transition class="space-y-4">
       <div class="flex justify-between items-center bg-slate-800 p-3 rounded-xl border border-slate-700 shadow">
         <h3 class="text-xs font-bold text-slate-200">📌 大家的心得與交流站</h3>
@@ -266,10 +437,270 @@
     function appData() {
       return {
         currentTab: 'quiz',
+        dexFilter: '全部',
         filter: '全部',
         currentQIndex: 0,
         quizCompleted: false,
         scores: { A: 0, B: 0, C: 0, D: 0 },
+
+        personas: {
+          A1: {
+            id: 'A1',
+            dimension: '觀察',
+            classTag: 'CLASS // 觀察維度',
+            archetypeTag: '理性冷靜派',
+            colorPalette: '科技藍 × 鋼鐵銀',
+            emoji: '⚖️',
+            title: '界線守護者',
+            shortReview: '「我可以對你好，但前提是這份好不會讓我自己虧損。」',
+            quote: '「正直與清醒，是守護內心秩序的最高準則。」',
+            tags: ['#能量守恆', '#精準停損', '#情緒絕緣體'],
+            propName: '等價天平與情緒計算機',
+            propDesc: '隨時精算付出與回報，一旦發現能量透支立刻啟動防禦結界。',
+            appearance: '戴著金屬細框眼鏡、手拿成本效益帳本，周圍環繞著淡藍色防禦結界，神情冷靜且眼神銳利。',
+            desc: '擅長客觀拆解互動中的付出與收穫，對能量流失極度敏感。不隨意消耗心力，也不輕易越界，一旦關係長期失衡便能果斷停損。',
+            skillName: '理性結界・能量守恆',
+            reminder: '設立界線並非冷漠，而是為了讓真正珍貴的情感在健康的土壤中滋養。',
+            cardBorderClass: 'border-sky-500/40',
+            headerBgClass: 'bg-gradient-to-r from-slate-900 via-sky-950/60 to-slate-900',
+            avatarBorderClass: 'border-sky-400/50',
+            badgeClass: 'bg-sky-500/20 text-sky-300 border-sky-500/30',
+            accentBorderClass: 'border-sky-400',
+            accentTextClass: 'text-sky-400',
+            buttonClass: 'bg-sky-600 hover:bg-sky-500',
+            radarFill: 'rgba(56, 189, 248, 0.25)',
+            radarStroke: '#38bdf8',
+            radarDot: '#7dd3fc',
+            suggestedHappiness: 8,
+            costText: '設定清晰界線與過濾成本，保護個人能量不被過度消耗。',
+            rewardText: '享有極高的自我主導權與清爽健康的社交圈。',
+            reflectionText: '在關係中保持客觀觀察與界線平衡，懂得精準停損是最高級的自我照顧。'
+          },
+          A2: {
+            id: 'A2',
+            dimension: '觀察',
+            classTag: 'CLASS // 觀察維度',
+            archetypeTag: '敏銳策略派',
+            colorPalette: '靛青藍 × 銀灰',
+            emoji: '🧭',
+            title: '局勢判讀官',
+            shortReview: '「先看清誰在演戲、誰在求救，再決定要不要踏進局裡。」',
+            quote: '「看清局勢不需要急著出手，保留餘裕才能在關鍵時刻做出最穩妥的選擇。」',
+            tags: ['#人間望遠鏡', '#局勢預判', '#客觀旁觀者'],
+            propName: '全視之眼星象儀',
+            propDesc: '在混亂的社交場域中精準定位每個人的真實立場與動向。',
+            appearance: '站在高處俯瞰棋盤般的社交場域，披著深靛青斗篷，手中握著能看清局勢脈絡的羅盤。',
+            desc: '不只看付出與回報，更擅長觀察人際互動中的潛台詞、氣氛轉折與權責分工。總能在混亂局面中快速抓出關鍵事實。',
+            skillName: '全景掃描・局勢預判',
+            reminder: '看清局勢不需要急著出手，保留餘裕才能在關鍵時刻做出最穩妥的選擇。',
+            cardBorderClass: 'border-indigo-500/40',
+            headerBgClass: 'bg-gradient-to-r from-slate-900 via-indigo-950/60 to-slate-900',
+            avatarBorderClass: 'border-indigo-400/50',
+            badgeClass: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30',
+            accentBorderClass: 'border-indigo-400',
+            accentTextClass: 'text-indigo-400',
+            buttonClass: 'bg-indigo-600 hover:bg-indigo-500',
+            radarFill: 'rgba(129, 140, 248, 0.25)',
+            radarStroke: '#818cf8',
+            radarDot: '#a5b4fc',
+            suggestedHappiness: 8,
+            costText: '保持高度觀察與局勢判讀，需要維持清醒的心理距離。',
+            rewardText: '不容易陷入情緒陷阱，能在複雜互動中掌握主動權。',
+            reflectionText: '先看清事實脈絡再做回應，能讓自己在人際場域中少走許多冤枉路。'
+          },
+          B1: {
+            id: 'B1',
+            dimension: '感受',
+            classTag: 'CLASS // 感受維度',
+            archetypeTag: '溫暖療癒派',
+            colorPalette: '暖柔粉 × 奶茶棕',
+            emoji: '🧋',
+            title: '共感覺察者',
+            shortReview: '「你難過我比你更難過，明明累得要死卻還是忍不住接住你。」',
+            quote: '「以人應然之態待之，方能助其臻於所能之境。」',
+            tags: ['#情緒吸塵器', '#24H樹洞', '#先人後己'],
+            propName: '全糖去冰溫熱黑糖珍奶',
+            propDesc: '自己報告還沒寫完，還是先遞上一杯暖心飲品安慰別人。',
+            appearance: '頭頂毛茸茸小耳、抱著一杯溫熱手搖飲，眼神溫柔卻帶點熬夜後的疲憊，周身散發柔和粉光。',
+            desc: '內建高敏共感雷達，能第一時間接住身邊人的低落與情緒波動。總是先人後己，是大家最依賴的溫柔避風港。',
+            skillName: '深層共鳴・情緒承接',
+            reminder: '在接住全世界的脆弱之餘，也請留一盞燈給自己，溫柔擁抱那個總是先照顧別人的自己。',
+            cardBorderClass: 'border-rose-500/40',
+            headerBgClass: 'bg-gradient-to-r from-slate-900 via-rose-950/60 to-slate-900',
+            avatarBorderClass: 'border-rose-400/50',
+            badgeClass: 'bg-rose-500/20 text-rose-300 border-rose-500/30',
+            accentBorderClass: 'border-rose-400',
+            accentTextClass: 'text-rose-400',
+            buttonClass: 'bg-rose-600 hover:bg-rose-500',
+            radarFill: 'rgba(251, 113, 133, 0.25)',
+            radarStroke: '#fb7185',
+            radarDot: '#fda4af',
+            suggestedHappiness: 6,
+            costText: '長期吸收身邊親友的情緒波動，精神與共感成本較高。',
+            rewardText: '獲得大家的高度信任與深厚的情感連結。',
+            reflectionText: '擁有一顆溫柔且敏銳的心，但在陪伴他人之餘，也要學會適時為自己充電。'
+          },
+          B2: {
+            id: 'B2',
+            dimension: '感受',
+            classTag: 'CLASS // 感受維度',
+            archetypeTag: '細膩守望派',
+            colorPalette: '珊瑚橘 × 暖米白',
+            emoji: '🕯️',
+            title: '靜默共情者',
+            shortReview: '「不用急著解釋或變好，我就在這裡陪你把這段低潮走完。」',
+            quote: '「有時候不用急著給出答案，單純的陪伴與理解就已經很有力量。」',
+            tags: ['#無聲陪伴', '#細節控', '#溫柔避風港'],
+            propName: '永不熄滅的琥珀小夜燈',
+            propDesc: '不講大道理，只在你最安靜低落時默默照亮身旁。',
+            appearance: '提著一盞暖橘色小燈籠走在微暗小徑上，不急著說話，只是安靜地陪伴在需要被理解的人身旁。',
+            desc: '比起高調安慰，更擅長用安靜的理解與同理陪伴他人走過低谷。對他人的委屈與細微情緒特別在意，有時容易把別人的壓力往心裡扛。',
+            skillName: '微光伴行・無聲理解',
+            reminder: '有時候不用急著給出答案，單純的陪伴與理解就已經很有力量；但也別忘了照顧自己的心。',
+            cardBorderClass: 'border-orange-400/40',
+            headerBgClass: 'bg-gradient-to-r from-slate-900 via-orange-950/60 to-slate-900',
+            avatarBorderClass: 'border-orange-300/50',
+            badgeClass: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
+            accentBorderClass: 'border-orange-400',
+            accentTextClass: 'text-orange-400',
+            buttonClass: 'bg-orange-600 hover:bg-orange-500',
+            radarFill: 'rgba(251, 146, 60, 0.25)',
+            radarStroke: '#fb923c',
+            radarDot: '#fdba74',
+            suggestedHappiness: 7,
+            costText: '細膩承接他人未說出口的委屈與低潮，容易默默內耗。',
+            rewardText: '建立深沉且安心的信任關係，成為他人最難忘的依靠。',
+            reflectionText: '安靜的陪伴也是一種深厚的力量，記得把同樣的溫柔留給自己。'
+          },
+          C1: {
+            id: 'C1',
+            dimension: '需要',
+            classTag: 'CLASS // 需要維度',
+            archetypeTag: '知性導師派',
+            colorPalette: '翡翠綠 × 琥珀金',
+            emoji: '🧠',
+            title: '清明對話者',
+            shortReview: '「情緒先放旁邊，我們直接來聊你到底希望我怎麼做。」',
+            quote: '「真相與理解，是化解一切內耗的唯一解藥。」',
+            tags: ['#結巴終結者', '#情勒絕緣體', '#直指核心'],
+            propName: '真相稜鏡對話框',
+            propDesc: '把所有情緒化與拐彎抹角的指責，過濾成最純粹的真實需求。',
+            appearance: '衣著俐落、神情從容，雙手交疊於胸前，身旁漂浮著晶瑩剔透的對話光點，眼神澄澈而堅定。',
+            desc: '不喜歡拐彎抹角或情緒勒索，擅長把混亂的爭執拉回「彼此真正需要什麼」。用溫潤卻清楚的表達，讓溝通真正產生連結。',
+            skillName: '核心洞察・非暴力破局',
+            reminder: '你的清醒是一抹清流，但也允許自己偶爾不用那麼完美、不用總是當看透一切的人。',
+            cardBorderClass: 'border-emerald-500/40',
+            headerBgClass: 'bg-gradient-to-r from-slate-900 via-emerald-950/60 to-slate-900',
+            avatarBorderClass: 'border-emerald-400/50',
+            badgeClass: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+            accentBorderClass: 'border-emerald-400',
+            accentTextClass: 'text-emerald-400',
+            buttonClass: 'bg-emerald-600 hover:bg-emerald-500',
+            radarFill: 'rgba(16, 185, 129, 0.25)',
+            radarStroke: '#10b981',
+            radarDot: '#34d399',
+            suggestedHappiness: 9,
+            costText: '需要花費心思傾聽、拆解對方的深層需要與客觀事實。',
+            rewardText: '收穫高品質的深度理解、真誠溝通與心靈共鳴。',
+            reflectionText: '透過坦誠且直指核心的對話，讓每一次互動都成為滋養彼此的養分。'
+          },
+          C2: {
+            id: 'C2',
+            dimension: '需要',
+            classTag: 'CLASS // 需要維度',
+            archetypeTag: '深度連結派',
+            colorPalette: '森林綠 × 溫潤金',
+            emoji: '🌱',
+            title: '需求譯碼師',
+            shortReview: '「每一句帶刺的抱怨背後，其實都藏著一個沒被聽見的求救。」',
+            quote: '「每一次真誠的對話都在修補距離，別忘了也把同樣的溫柔留給自己的需求。」',
+            tags: ['#心聲翻譯機', '#衝突拆彈手', '#深度連結'],
+            propName: '潛台詞解碼筆記本',
+            propDesc: '能把「隨便你」翻譯成「我其實很在意」，把怒氣還原成渴望。',
+            appearance: '蹲在草地上細心傾聽植物生長的旅人，手邊放著一本「心聲翻譯手冊」，神情專注而真誠。',
+            desc: '能聽懂抱怨背後的真實渴望——例如「生氣背後其實是害怕被忽略」、「拒絕背後其實是太累了」。擅長把衝突轉化為互相理解的起點。',
+            skillName: '渴望解碼・橋樑重築',
+            reminder: '每一次真誠的對話都在修補距離，別忘了也把同樣的溫柔留給自己的需求。',
+            cardBorderClass: 'border-lime-500/40',
+            headerBgClass: 'bg-gradient-to-r from-slate-900 via-lime-950/60 to-slate-900',
+            avatarBorderClass: 'border-lime-400/50',
+            badgeClass: 'bg-lime-500/20 text-lime-300 border-lime-500/30',
+            accentBorderClass: 'border-lime-400',
+            accentTextClass: 'text-lime-400',
+            buttonClass: 'bg-lime-600 hover:bg-lime-500',
+            radarFill: 'rgba(132, 204, 22, 0.25)',
+            radarStroke: '#84cc16',
+            radarDot: '#bef264',
+            suggestedHappiness: 9,
+            costText: '願意在衝突中耐心聽見深層需要，需要投入較高的溝通耐心。',
+            rewardText: '能化解誤會並建立更具韌性與信任的真實關係。',
+            reflectionText: '聽見彼此真正的需求，往往比爭辯誰對誰錯更能讓關係往前走。'
+          },
+          D1: {
+            id: 'D1',
+            dimension: '請求',
+            classTag: 'CLASS // 請求維度',
+            archetypeTag: '隨性浪漫派',
+            colorPalette: '薄荷綠 × 森林綠',
+            emoji: '🍃',
+            title: '自在漂流者',
+            shortReview: '「強求的緣分不會甜，凡事盡力就好，剩下的交給時間。」',
+            quote: '「心無旁騖，隨風而去，在自然中尋找內心的寧靜。」',
+            tags: ['#內耗免疫', '#佛系社交', '#隨風而去'],
+            propName: '降噪藍牙耳機與隨風落葉',
+            propDesc: '一戴上就能自動屏蔽外界雜音，維持內心絕對平靜。',
+            appearance: '戴著耳機靠在樹蔭下，微風吹起衣角，頭頂飄著一朵悠閒小雲與一片落葉，充滿鬆弛感。',
+            desc: '把「不強求、不內耗」刻進日常節奏裡，面對人際拉扯與突發狀況總能保持彈性與餘裕，不被外界雜音輕易牽著走。',
+            skillName: '無為而治・內耗免疫',
+            reminder: '隨性與灑脫是很難得的自由，偶爾放慢腳步，感受當下最純粹的呼吸。',
+            cardBorderClass: 'border-teal-400/40',
+            headerBgClass: 'bg-gradient-to-r from-slate-900 via-teal-950/60 to-slate-900',
+            avatarBorderClass: 'border-teal-300/50',
+            badgeClass: 'bg-teal-500/20 text-teal-300 border-teal-500/30',
+            accentBorderClass: 'border-teal-400',
+            accentTextClass: 'text-teal-400',
+            buttonClass: 'bg-teal-600 hover:bg-teal-500',
+            radarFill: 'rgba(45, 212, 191, 0.25)',
+            radarStroke: '#2dd4bf',
+            radarDot: '#5eead4',
+            suggestedHappiness: 8,
+            costText: '幾近於零的社交內耗與無謂的精神拉扯。',
+            rewardText: '獲得無拘無束的心理自由與隨遇而安的平靜。',
+            reflectionText: '世事紛擾，保持內心的彈性與餘裕，輕鬆看待每一段緣分的聚散。'
+          },
+          D2: {
+            id: 'D2',
+            dimension: '請求',
+            classTag: 'CLASS // 請求維度',
+            archetypeTag: '輕盈豁達派',
+            colorPalette: '天青綠 × 晨霧白',
+            emoji: '☁️',
+            title: '雲端漫遊者',
+            shortReview: '「這不是我的課題，喝口飲料看開一點，路自然會長出來。」',
+            quote: '「放過自己對『一定要圓滿』的執念，輕鬆一點，路反而會更寬。」',
+            tags: ['#課題分離大師', '#輕盈抽離', '#氣氛緩和劑'],
+            propName: '漂浮雲朵氣泡飲',
+            propDesc: '在緊繃的空氣中吹出一口清爽氣泡，讓沉重的話題瞬間降落。',
+            appearance: '像一片輕盈的雲朵飄浮在天際線上方，手裡拿著一杯冰涼氣泡飲，對地面的紛擾微笑以對。',
+            desc: '懂得適度抽離、不把所有事都當成個人課題。遇到卡關或尷尬時，能用輕鬆、幽默或順勢而為的方式化解緊繃，讓自己與他人都不必太沉重。',
+            skillName: '輕盈抽離・順勢轉念',
+            reminder: '放過自己對「一定要圓滿」的執念，輕鬆一點，路反而會更寬。',
+            cardBorderClass: 'border-cyan-400/40',
+            headerBgClass: 'bg-gradient-to-r from-slate-900 via-cyan-950/60 to-slate-900',
+            avatarBorderClass: 'border-cyan-300/50',
+            badgeClass: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30',
+            accentBorderClass: 'border-cyan-400',
+            accentTextClass: 'text-cyan-400',
+            buttonClass: 'bg-cyan-600 hover:bg-cyan-500',
+            radarFill: 'rgba(34, 211, 238, 0.25)',
+            radarStroke: '#22d3ee',
+            radarDot: '#67e8f9',
+            suggestedHappiness: 9,
+            costText: '適度抽離過度緊繃的期待，減少不必要的壓力背負。',
+            rewardText: '保持輕鬆正向的心態，成為團體中舒緩壓力的存在。',
+            reflectionText: '學會把重擔放輕一點，許多看似卡住的時刻，換個角度就通了。'
+          }
+        },
         
         questions: [
           { q: "1. 當朋友在系上聚會中開了一個讓你略感不舒服的玩笑時，你的第一反應通常是？", options: [
@@ -345,7 +776,7 @@
             { text: "點頭微笑當作背景音樂，完全不往心裡去。", type: "D" }
           ]},
           { q: "13. 當你聽到身邊的人在吵架或意見不合時，你心裡的直覺反應是？", options: [
-            { text: "只要不波及到我，這場戲還蠻好看的。", type: "A" },
+            { text: "只要不波及到我，這場戲還蠻好看。", type: "A" },
             { text: "覺得好緊張、好有壓迫感，很想趕快跳出來當和事佬。", type: "B" },
             { text: "觀察雙方各自是在堅持什麼樣的價值或需要。", type: "C" },
             { text: "與我無關，保持距離以策安全。", type: "D" }
@@ -421,6 +852,12 @@
           });
         },
 
+        get filteredPersonas() {
+          const list = Object.values(this.personas);
+          if (this.dexFilter === '全部') return list;
+          return list.filter(item => item.dimension === this.dexFilter);
+        },
+
         get filteredPosts() {
           if (this.filter === '全部') return this.posts;
           return this.posts.filter(p => p.relationType === this.filter);
@@ -454,7 +891,6 @@
           if (!canvas) return;
           const ctx = canvas.getContext('2d');
 
-          // 🔥 Retina 高解析度清晰化處理
           const dpr = window.devicePixelRatio || 1;
           const displayWidth = 260;
           const displayHeight = 220;
@@ -469,7 +905,8 @@
 
           ctx.clearRect(0, 0, displayWidth, displayHeight);
 
-          const labels = ['觀察 (界線平衡)', '感受 (情緒勞動)', '需要 (清明對話)', '請求 (佛系漂流)'];
+          const persona = this.resultPersona;
+          const labels = ['觀察 (界線局勢)', '感受 (共感陪伴)', '需要 (對話譯碼)', '請求 (自在抽離)'];
           const maxScore = Math.max(5, this.scores.A, this.scores.B, this.scores.C, this.scores.D);
           const values = [
             this.scores.A / maxScore,
@@ -512,16 +949,16 @@
             else ctx.lineTo(x, y);
           }
           ctx.closePath();
-          ctx.fillStyle = 'rgba(16, 185, 129, 0.25)';
+          ctx.fillStyle = persona.radarFill;
           ctx.fill();
-          ctx.strokeStyle = '#10b981';
+          ctx.strokeStyle = persona.radarStroke;
           ctx.lineWidth = 2;
           ctx.stroke();
 
-          ctx.fillStyle = '#34d399';
           points.forEach((p, i) => {
             ctx.beginPath();
             ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
+            ctx.fillStyle = persona.radarDot;
             ctx.fill();
 
             ctx.fillStyle = '#94a3b8';
@@ -535,59 +972,19 @@
         },
 
         get resultPersona() {
-          let maxType = 'A';
-          let maxVal = -1;
-          for (let k in this.scores) {
-            if (this.scores[k] > maxVal) {
-              maxVal = this.scores[k];
-              maxType = k;
-            }
-          }
+          const entries = Object.entries(this.scores).sort((a, b) => b[1] - a[1]);
+          const topType = entries[0][0];
+          const secondType = entries[1][0];
 
-          if (maxType === 'A') {
-            return {
-              type: '【NVC維度：觀察】',
-              emoji: '⚖️',
-              title: '精準停損的賽局玩家',
-              desc: '你擅長客觀觀察事實與成本！付出多少心力、得到多少回報，心裡都有一張嚴格的成本效益表。一旦發現這段關係開始「內耗大於滋養」，秒開防禦結界、直接斷捨離。',
-              suggestedHappiness: 8,
-              costText: '設定嚴格界線與防禦成本，過濾掉不必要的消耗。',
-              rewardText: '享有極高的自主權與乾淨清爽的社交圈。',
-              reflectionText: '測驗結果：人際關係不是做慈善，懂得精準停損、保護自己的能量才是最高級的自我照顧。'
-            };
-          } else if (maxType === 'B') {
-            return {
-              type: '【NVC維度：感受】',
-              emoji: '🧋',
-              title: '免費情緒勞動大代工',
-              desc: '你對周遭的感受極度敏銳！身邊親友的 24 小時免費心理諮商所就是你。動不動就接收到別人的情緒廢氣，明明自己報告也還沒寫完，還是忍不住幫別人順毛。',
-              suggestedHappiness: 6,
-              costText: '長期吸收身邊親友的負能量與情緒廢氣，精神成本極高。',
-              rewardText: '獲得大家的高度依賴與溫暖的情感連結。',
-              reflectionText: '測驗結果：雖然常常當情緒吸塵器累得半死，但心裡還是很在乎大家，需要學會好好照顧自己的界線。'
-            };
-          } else if (maxType === 'C') {
-            return {
-              type: '【NVC維度：需要】',
-              emoji: '🧠',
-              title: '人間清醒大師 / 結巴終結者',
-              desc: '你總能直指核心看清大家的深層需要！當別人想情勒或開啟情緒化對話時，你總能冷靜拋出一句精準的對話，直接把對方的無效溝通降落，堪稱溝通界清流。',
-              suggestedHappiness: 9,
-              costText: '需要花費心思傾聽、拆解對方的需求與客觀事實。',
-              rewardText: '收穫高品質的深度理解、良好溝通與心靈共鳴。',
-              reflectionText: '測驗結果：透過清晰的對話與非暴力溝通，讓每一次互動都成為滋養彼此的養分。'
-            };
+          // 依最高分維度與次高分維度搭配決定 8 大角色之一
+          if (topType === 'A') {
+            return (secondType === 'B' || secondType === 'C') ? this.personas.A2 : this.personas.A1;
+          } else if (topType === 'B') {
+            return (secondType === 'A' || secondType === 'D') ? this.personas.B2 : this.personas.B1;
+          } else if (topType === 'C') {
+            return (secondType === 'B' || secondType === 'D') ? this.personas.C2 : this.personas.C1;
           } else {
-            return {
-              type: '【NVC維度：請求】',
-              emoji: '🍃',
-              title: '佛系躺平漂流木',
-              desc: '你把「隨緣」跟「不糾結」刻在DNA裡！用最輕鬆的請求與視角看待人際拉扯。別人焦慮得要死，你永遠在旁邊喝手搖飲看戲，絕不內耗、絕不黏人。',
-              suggestedHappiness: 8,
-              costText: '幾近於零的社交內耗與精神成本。',
-              rewardText: '獲得無拘無束的自由與隨遇而安的快樂。',
-              reflectionText: '測驗結果：世事紛擾，主打一個隨緣過生活，地球轉一轉總會有辦法的，輕鬆看待一切。'
-            };
+            return (secondType === 'A' || secondType === 'C') ? this.personas.D2 : this.personas.D1;
           }
         },
 
@@ -613,7 +1010,7 @@
             rewardScore: this.form.rewardScore,
             rewardDesc: this.form.rewardDesc,
             happiness: this.form.happiness,
-            reflection: `【心測結果：${persona.emoji} ${persona.title}】\n` + this.form.reflection,
+            reflection: `【LV.99 ${persona.emoji} ${persona.title}｜道具：${persona.propName}】\n${persona.shortReview}\n` + this.form.reflection,
             net: net,
             tag: tag,
             likes: 0,
